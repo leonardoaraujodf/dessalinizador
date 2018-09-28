@@ -1,0 +1,52 @@
+1 - Instale o SSH no computador que usará o terminal para controlar a raspberry pi
+
+$ sudo apt-get install openssh-server
+
+2 - Inicialize o ssh usando
+
+$ sudo service ssh start
+
+3 - Na raspberry pi, habilite o ssh usando
+
+$ sudo rasp-config
+
+No menu, vá em opções avançadas, ssh e habilite o ssh
+
+4 - Ainda na raspberry pi, descubra o ip da raspberry usando
+
+$ ifconfig
+
+5 - Se estiver usando o cabo de rede, procure-o na aba eth0, o endereço ip estará na linha: endereço inet. Se estiver usando Wi-Fi, estará na aba wlan0, inet end. (Use o comando $ hostname -I , para achar mais fácil) 
+
+6 - No computador, use o comando
+
+$ ssh pi@169.254.134.15 (ethernet)
+
+7 - A senha é 'pi'.
+
+8 - Pronto.
+
+----------------------------------------------------------------
+
+- Como transferir arquivos do computador para raspberry via ssh
+
+$ scp /home/leonardo/Documentos/Instrumentacao/server.c pi@192.168.15.8:/home/pi/Documents/Projeto_Instrumentacao
+
+- Como transferir arquivos da raspberry pi para o computador via ssh
+
+scp pi@192.168.15.8:/home/pi/Documents/Projeto_Instrumentacao/server.c /home/leonardo/Documentos/Instrumentacao
+
+- Como transferir um diretorio inteiro do computador para raspberry pi
+
+scp -r /home/leonardo/Documentos/Instrumentacao pi@192.168.15.8:/home/pi/Documents/Projeto_Instrumentacao
+
+----------------------------------------------------------
+
+Meu roteador: 192.168.15.1
+
+
+
+
+
+
+
