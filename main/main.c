@@ -5,6 +5,8 @@
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
 #include <unistd.h>
+#include "oled.h"
+
 
 #define MSP430_ADDRESS 0x0F
 
@@ -96,6 +98,7 @@ int main(){
 	printf("Tds sensor: %d\n",tds_sensor);
 	
 	get_Battlevel(bat_level);
-	
+	print_test();
+
 	return 0;
 }
