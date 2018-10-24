@@ -26,6 +26,7 @@ $ ssh pi@169.254.134.15 (ethernet)
 
 8 - Pronto.
 
+192.168.15.4
 ----------------------------------------------------------------
 
 - Como transferir arquivos do computador para raspberry via ssh
