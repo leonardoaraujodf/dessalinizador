@@ -33,11 +33,11 @@ void CloseTransmission(){
 struct analog
 {
 	unsigned char data[8];
-	unsigned int ph_sensor[30];
-	unsigned int turb_sensor[30];
-	unsigned int tds_sensor[30];
-	unsigned int bat_level[30];
-}
+	unsigned int ph_sensor;
+	unsigned int turb_sensor;
+	unsigned int tds_sensor;
+	unsigned int bat_level;
+};
 
 int main(){
 	
@@ -45,45 +45,40 @@ int main(){
 	int i;
 	unsigned char start_comm = 0x55;
 
+	//Order 30 conversions 
 
 	OpenTransmission(MSP430_ADDRESS);
 	
-	//Order 30 conversions 
-
-	for(i=0; i<30; i++){
-
-		if(write(i2c_fd,&start_comm,1) < 0){
-			printf("Error trying to write in i2c_fd.\n");
-		}
-
-		if(read(i2c_fd,sensors.data,8) < 0){
-			printf("Error trying to read in i2c_fd.\n");
-		}
-
-		sensors.ph_sensor[i] = sensors.data[0];
-		sensors.ph_sensor[i] += sensors.data[1] << 8;
-
-		sensors.turb_sensor[i] = sensors.data[2];
-		sensors.turb_sensor[i] += sensors.data[3] << 8;
-
-		sensors.tds_sensor[i] = sensors.data[4];
-		sensors.tds_sensor[i] += sensors.data[5] << 8;
-
-		sensors.bat_level[i] = sensors.data[6];
-		sensors.bat_level[i] += sensors.data[7] << 8;
-
+	if(write(i2c_fd,&start_comm,1) < 0){
+		printf("Error trying to write in i2c_fd.\n");
+	}
+	usleep(500000);
+	if(read(i2c_fd,sensors.data,8) < 0){
+		printf("Error trying to read in i2c_fd.\n");
 	}
 
+	sensors.ph_sensor = sensors.data[0];
+	sensors.ph_sensor += sensors.data[1] << 8;
+
+	sensors.turb_sensor = sensors.data[2];
+	sensors.turb_sensor += sensors.data[3] << 8;
+
+	sensors.tds_sensor = sensors.data[4];
+	sensors.tds_sensor += sensors.data[5] << 8;
+
+	sensors.bat_level = sensors.data[6];
+	sensors.bat_level += sensors.data[7] << 8;
+	
 	CloseTransmission();
-
-	for(i=0;i<30;i++){
-		printf("Ph sensor: %d\n",sensors.ph_sensor[i]);
-		printf("Turbidity sensor: %d\n",sensors.turb_sensor[i]);
-		printf("Tds sensor: %d\n",sensors.tds_sensor[i]);
-		printf("Battery level: %d\n",sensors.bat_level[i]);
+	
+	for(i=0;i<8;i++){
+		printf("Data %d: %d\n",i,sensors.data[i]);
 	}
-
-
+	
+	printf("Ph sensor: %d\n",sensors.ph_sensor);
+	printf("Turbidity sensor: %d\n",sensors.turb_sensor);
+	printf("Tds sensor: %d\n",sensors.tds_sensor);
+	printf("Battery level: %d\n",sensors.bat_level);
 
 
 	return 0;

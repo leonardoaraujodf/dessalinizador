@@ -58,7 +58,7 @@ void Transmit(unsigned int rdata){
 
 void init_AD(void){
 	ADC10AE0 |= AD_IN;
-	ADC10CTL0 = SREF_0 + ADC10SHT_3 + ADC10ON + MSC;
+	ADC10CTL0 = SREF_0 + ADC10SHT_3 + ADC10IE + ADC10ON + MSC;
 	ADC10CTL1 = INCH_3 + SHS_0 + ADC10DIV_0 + ADC10SSEL_3 + CONSEQ_1;	
 	ADC10DTC1 = 0x04; //how many data will be transfered to the buffer
 }
@@ -78,29 +78,29 @@ int main(void)
 interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void)
 {
 	if(IFG2 & UCB0RXIFG){
-    	if(UCB0RXBUF == 0x55){
+    		if(UCB0RXBUF == 0x55){
 
-    		ADC10CTL0 |= ENC + ADC10SC;
-    		while((ADC10CTL1 & BUSY));
-		ADC10CTL0 &= ~ENC;
-    		ADC10SA = (unsigned int) sensors;
-		
-		/*
-        	sensors[0] = 1010;
-		sensors[1] = 1001;
-		sensors[2] = 1002;
-		sensors[3] = 256;
-		*/
-
-        	while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
-		
-		Transmit(sensors[0]);
-		Transmit(sensors[1]);
-		Transmit(sensors[2]);
-		Transmit(sensors[3]);
-
-        	UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
-    	}
+    			ADC10CTL0 |= ENC + ADC10SC;
+			IFG2 &= ~(UCB0TXIFG|UCB0RXIFG);
+    		}
 	}
-    IFG2 &= ~(UCB0TXIFG|UCB0RXIFG);
+	else{
+		IFG2 &= ~(UCB0TXIFG|UCB0RXIFG);
+	}
+
+    
 }
+
+interrupt(ADC10_VECTOR) ADC10_ISR(void)
+{
+	ADC10CTL0 &= ~ENC;
+	ADC10SA = (unsigned int) sensors;
+	while( (UCB0STAT & UCSTTIFG)==0);
+	Transmit(sensors[0]);
+	Transmit(sensors[1]);
+	Transmit(sensors[2]);
+	Transmit(sensors[3]);
+	UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+}
+
+
