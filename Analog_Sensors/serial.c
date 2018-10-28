@@ -37,7 +37,7 @@ struct analog
 	unsigned int turb_sensor[30];
 	unsigned int tds_sensor[30];
 	unsigned int bat_level[30];
-}
+};
 
 int main(){
 	

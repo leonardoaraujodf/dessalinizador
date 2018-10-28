@@ -8,97 +8,66 @@
 #include "oled.h"
 
 
-#define MSP430_ADDRESS 0x0F
-
-int i2c_fd;
-
 void ctrl_c(int sig){
 	close(i2c_fd);
 	exit(-1);
 }
 
-void OpenTransmission(int address){
-	i2c_fd = open("/dev/i2c-1", O_RDWR);
-	if(i2c_fd < 0){
-		printf("Error opening i2c\n");
-	}
-	if(ioctl(i2c_fd, I2C_SLAVE,address) < 0){
-		printf("Error at ioctl\n");
-	}
-}
-
-void CloseTransmission(){
-	close(i2c_fd);
-}
-
-void get_Battlevel(int level){
-	
-	if(level < 848){
-		printf("Battery level: 0 %\n");
-	}
-	else if(level > 848 && level < 865){
-		printf("Battery level: 20 %\n");
-	}
-	else if(level > 865 && level < 884){
-		printf("Battery level: 40 %\n");
-	}
-	else if(level > 884 && level < 902){
-		printf("Battery level: 60 %\n");
-	}
-	else if(level > 902 && level < 920){
-		printf("Battery level: 80 %\n");
-	}
-	else if(level > 920){
-		printf("Battery level: 100 %\n");
-	}
-	
-}
+struct analog
+{
+	unsigned char data[8];
+	unsigned int ph_sensor[30];
+	unsigned int turb_sensor[30];
+	unsigned int tds_sensor[30];
+	unsigned int bat_level[30];
+};
 
 int main(){
 	
-	unsigned char data[8];
-	unsigned int ph_sensor;
-	unsigned int turb_sensor;
-	unsigned int tds_sensor;
-	unsigned int bat_level;
+	struct analog sensors;
 
 	int i;
 	unsigned char start_comm = 0x55;
-	
+	OLEDInit();
 	OpenTransmission(MSP430_ADDRESS);
-	
-	if(write(i2c_fd,&start_comm,1) < 0){
-		printf("Error trying to write in i2c_fd.\n");
-	}
-			
-	if(read(i2c_fd,data,8) < 0){
-		printf("Error trying to read in i2c_fd.\n");
+
+
+	for(i=0; i<30; i++){
+
+		if(write(i2c_fd,&start_comm,1) < 0){
+			printf("Error trying to write in i2c_fd.\n");
+		}
+
+		if(read(i2c_fd,sensors.data,8) < 0){
+			printf("Error trying to read in i2c_fd.\n");
+		}
+
+		sensors.ph_sensor[i] = sensors.data[0];
+		sensors.ph_sensor[i] += sensors.data[1] << 8;
+
+		sensors.turb_sensor[i] = sensors.data[2];
+		sensors.turb_sensor[i] += sensors.data[3] << 8;
+
+		sensors.tds_sensor[i] = sensors.data[4];
+		sensors.tds_sensor[i] += sensors.data[5] << 8;
+
+		sensors.bat_level[i] = sensors.data[6];
+		sensors.bat_level[i] += sensors.data[7] << 8;
+
 	}
 
 	CloseTransmission();
 
-	//for(i=0; i<2; i++){
-	//	printf("Value: %d\n",data[i]);		
-	//}
-
-	ph_sensor = data[0];
-	ph_sensor += data[1] << 8;
+	for(i=0;i<30;i++){
+		printf("Ph sensor: %d\n",sensors.ph_sensor[i]);
+		printf("Turbidity sensor: %d\n",sensors.turb_sensor[i]);
+		printf("Tds sensor: %d\n",sensors.tds_sensor[i]);
+		printf("Battery level: %d\n",sensors.bat_level[i]);
+	}
 	
-	turb_sensor = data[2];
-	turb_sensor += data[3] << 8;
-
-	tds_sensor = data[4];
-	tds_sensor += data[5] << 8;
-
-	bat_level = data[6];
-	bat_level += data[7] << 8;
-
-	printf("Ph sensor: %d\n",ph_sensor);
-	printf("Turbidity sensor: %d\n",turb_sensor);
-	printf("Tds sensor: %d\n",tds_sensor);
-	
-	get_Battlevel(bat_level);
-	print_test();
+	float TDS_value = get_TDS(sensors.tds_sensor);
+	float Turbidity_value = get_Turb(sensors.turb_sensor);
+	get_Battlevel(sensors.bat_level);
 
 	return 0;
 }

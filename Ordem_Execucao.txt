@@ -1,0 +1,18 @@
+-> Ações pela Raspberry Pi
+
+1 - O usuário pressiona o botão, e a Raspberry Pi detecta através de uma GPIO a borda de descida.
+2 - Após a detecção, a Raspberry Pi irá requisitar as amostras. Ela requisita 30 amostras de cada dado amostrado, enviando o byte 0x55 para a MSP430 a cada requisição, indicando que os dados das amostras são requeridos.
+3 - A Raspberry Pi aguarda que os dados das amostras dos sensores e do nível atual de bateria sejam enviados pela MSP430.
+4 - Após isto, a raspberry pi obtêm os dados do módulo GPS e do sensor de temperatura.
+5 - Depois disto, os dados obtidos são convertidos, onde o valor da mediana de 30 amostras de cada sensor lido é calculada e depois a fórmula de cada parâmetro é utilizada para fornecer os valores de PH, Turbidez e TDS.
+6 - Ao mesmo tempo, uma thread obtêm a mediana das 30 amostras de tensão lidas do circuito de monitoramento de bateria, acionando o display conforme o nível atual de bateria, de forma a alertar o usuário.
+7 - Após a obtenção de todos os dados (PH, Turbidez, TDS, Temperatura e Localização), estes são enviados para um arquivo .txt para que a equipe de software possa enviar para seus sistemas os dados obtidos das amostras.
+8 - A Raspberry Pi aguarda um novo acionamento do sistema.
+
+-> Ações pela MSP430
+
+1 - O MSP430 espera receber o valor 0x55 da Raspberry Pi.
+2 - Após recebido, o MSP430 amostra o valor de tensão dos sensores nas portas P1.0 até a P1.3, e após isto envia estes valores via protocolo I2C, requisitando esta interrupção sempre que a Raspberry Pi necessita de uma nova amostra.
+3 - Depois do envio, esta verifica se a bateria tem nível adequado para acionar o sistema. Tendo nível adequado, esta aciona a bomba.
+4 - Após o acionamento da bomba, o MSP430 fica verificando o sensor de vazão até que o volume de água entregue esteja em 20 litros.
+5 - Quando 20 litros de água forem dessalinizados, a MSP430 desliga a bomba e fica em modo de baixo consumo. 

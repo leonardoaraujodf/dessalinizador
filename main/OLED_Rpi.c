@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
+
 #define OLED_I2C_ADDRESS  0x3C
 
 #define OLED_CONTROL_BYTE_CMD_SINGLE  0x80
