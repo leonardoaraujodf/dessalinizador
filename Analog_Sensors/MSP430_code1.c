@@ -6,10 +6,10 @@
  * I. It will receive the byte 0x55, what means that the Raspberry Pi
  * needs data from the sensors.
  * II. Sensors order
- 		Sensors[0] - PH sensor
-		Sensors[1] - Turbidity sensor
-		Sensors[2] - TDS sensor
-		Sensors[3] - Battery Level
+ 		Sensors[3] - PH sensor
+		Sensors[2] - Turbidity sensor
+		Sensors[1] - TDS sensor
+		Sensors[0] - Battery Level
  * */
 
 #include <msp430g2553.h>
