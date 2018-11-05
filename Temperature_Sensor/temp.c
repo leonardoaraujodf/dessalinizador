@@ -3,13 +3,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#define PATH "/sys/bus/w1/devices/28-01131b9500b6/w1_slave"
+#define TEMP_PATH "/sys/bus/w1/devices/28-01131b9500b6/w1_slave"
 
 int main(){
 	int fp,length = 0,i_temp;
 	float temp;
 	char c,*text;
-	fp = open(PATH, O_RDONLY);
+	fp = open(TEMP_PATH, O_RDONLY);
 	if(fp==-1){
 		printf("Erro na abertura do arquivo.\n");
 		exit(1);

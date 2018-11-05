@@ -13,15 +13,6 @@ void ctrl_c(int sig){
 	exit(-1);
 }
 
-struct analog
-{
-	unsigned char data[8];
-	unsigned int ph_sensor[30];
-	unsigned int turb_sensor[30];
-	unsigned int tds_sensor[30];
-	unsigned int bat_level[30];
-};
-
 int main(){
 	
 	struct analog sensors;
@@ -57,17 +48,30 @@ int main(){
 	}
 
 	CloseTransmission();
-
+	
+	/*
 	for(i=0;i<30;i++){
 		printf("Ph sensor: %d\n",sensors.ph_sensor[i]);
 		printf("Turbidity sensor: %d\n",sensors.turb_sensor[i]);
 		printf("Tds sensor: %d\n",sensors.tds_sensor[i]);
 		printf("Battery level: %d\n",sensors.bat_level[i]);
 	}
-	
-	float TDS_value = get_TDS(sensors.tds_sensor);
-	float Turbidity_value = get_Turb(sensors.turb_sensor);
+	*/
+	char gps_data[100] = {0};
+	float PH_value, TDS_value, Turbidity_value, Temp;
+
+	Temp = get_Temp();
+	PH_value = get_PH(sensors.ph_sensor);
+	TDS_value = get_TDS(sensors.tds_sensor);
+	Turbidity_value = get_Turb(sensors.turb_sensor);
 	get_Battlevel(sensors.bat_level);
+	get_localization(gps_data);	
+
+	printf("Temperature Value: %.2f\n",Temp);
+	printf("PH value: %.2f\n", PH_value);
+	printf("TDS value: %.2f\n",TDS_value);
+	printf("Turbidity value: %.2f \n",Turbidity_value);
+	printf("%s\n",gps_data);	
 
 	return 0;
 }
