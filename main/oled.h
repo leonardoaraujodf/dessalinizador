@@ -69,6 +69,16 @@ int i2c_fd;
 // NOP
 #define OLED_CMD_NOP                    0xE3
 
+// GPS Formatting
+#define MAX_NUMBER_OF_FIELDS 13
+#define MAX_STRING_LENGTH 50
+#define LATITUDE_INDEX 2
+#define LONGITUDE_INDEX 4
+#define VERTICAL_DIRECTION_INDEX 3
+#define HORIZONTAL_DIRECTION_INDEX 5
+#define X 0
+#define Y 1
+
 struct analog
 {
 	unsigned char data[8];
@@ -92,5 +102,10 @@ int compare (const void * a, const void * b);
 float get_median(int *values);
 int get_localization(char *gps_data);
 void turn_Bomb(unsigned char value);
+void split_by(char *token, char *string, char array[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH]);
+double convert_dms_cordinate_to_decimal(double dms_coordinate);
+int compute_direction(char *raw_direction);
+void format_coordinate(char coordinate, char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH]);
+void format_coordinates(char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH]);
 
 #endif

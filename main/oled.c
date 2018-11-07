@@ -613,4 +613,63 @@ float get_median(int *values){
 	return ((values[14] + values[15])/2.0) ;
 }
 
+void split_by(char *token, char *string, char array[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH])
+{
+	char *raw_string = string;
+	char *raw_string_info = NULL;
 
+	int i;
+	for (i = 0, raw_string_info = strsep(&raw_string, ","); raw_string_info != NULL; i++, raw_string_info = strsep(&raw_string, ","))
+	{
+		strcpy(array[i], raw_string_info);
+	}
+}
+
+double convert_dms_cordinate_to_decimal(double dms_coordinate)
+{
+	int degrees = dms_coordinate / 100;
+	double minutes = dms_coordinate - degrees * 100;
+	double decimal_coordinate = degrees + minutes / 60.0;
+
+	return decimal_coordinate;
+}
+
+int compute_direction(char *raw_direction)
+{
+	int direction = (strcmp(raw_direction, "W") == 0) || (strcmp(raw_direction, "S") == 0) ? -1 : 1;
+
+	return direction;
+}
+
+void format_coordinate(char coordinate, char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH])
+{
+	int COORDINATE_INDEX = 0;
+	int COORDINATE_DIRECTION_INDEX = 0;
+	int COORDINATE = 0;
+
+	if (coordinate == 'X')
+	{
+		COORDINATE_INDEX = LATITUDE_INDEX;
+		COORDINATE_DIRECTION_INDEX = HORIZONTAL_DIRECTION_INDEX;
+		COORDINATE = X;
+	}
+	else
+	{
+		COORDINATE_INDEX = LONGITUDE_INDEX;
+		COORDINATE_DIRECTION_INDEX = VERTICAL_DIRECTION_INDEX;
+		COORDINATE = Y;
+	}
+
+	double dms_coordinate = strtod(gps_info[COORDINATE_INDEX], NULL);
+	double decimal_coordinate = convert_dms_cordinate_to_decimal(dms_coordinate);
+	double coordinate_with_direction = decimal_coordinate * compute_direction(gps_info[COORDINATE_DIRECTION_INDEX]);
+	char formated_coordinate[50] = {0};
+
+	snprintf(coordinates[COORDINATE], 50, "%lf", coordinate_with_direction);
+}
+
+void format_coordinates(char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH])
+{
+	format_coordinate('X', gps_info, coordinates);
+	format_coordinate('Y', gps_info, coordinates);
+}
