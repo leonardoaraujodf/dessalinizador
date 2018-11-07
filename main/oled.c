@@ -682,7 +682,7 @@ void get_collection_date(char *formatted_time)
 	sprintf(formatted_time, "%d-%02d-%02d %02d:%02d:%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 }
 
-void create_new_sample_file(float turbidity, float ph, float temperature, float tds, float x_coordinate, float y_coordinate)
+void create_new_sample_file(float turbidity, float ph, float temperature, float tds, char *x_coordinate, char *y_coordinate)
 {
 	FILE *new_sample = fopen(NEW_SAMPLE_PATH, "w");
 	char collection_date[MAX_STRING_LENGTH] = {0};
@@ -704,8 +704,8 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 	fprintf(new_sample, "temperature: %.2f\n", temperature);
 	fprintf(new_sample, "tds: %.2f\n", tds);
 	fprintf(new_sample, "collection_date: %s\n", collection_date);
-	fprintf(new_sample, "latitude: %f\n", x_coordinate);
-	fprintf(new_sample, "longitude: %f\n", y_coordinate);
+	fprintf(new_sample, "latitude: %s\n", x_coordinate);
+	fprintf(new_sample, "longitude: %s\n", y_coordinate);
 
 	fclose(new_sample);
 }

@@ -112,6 +112,6 @@ int compute_direction(char *raw_direction);
 void format_coordinate(char coordinate, char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH]);
 void format_coordinates(char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH]);
 void get_collection_date(char *formatted_time);
-void create_new_sample_file(float turbidity, float ph, float temperature, float tds, float x_coordinate, float y_coordinate);
+void create_new_sample_file(float turbidity, float ph, float temperature, float tds, char *x_coordinate, char *y_coordinate);
 
 #endif
