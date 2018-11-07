@@ -65,13 +65,26 @@ int main(){
 	TDS_value = get_TDS(sensors.tds_sensor);
 	Turbidity_value = get_Turb(sensors.turb_sensor);
 	get_Battlevel(sensors.bat_level);
-	get_localization(gps_data);	
+	get_localization(gps_data);
 
-	printf("Temperature Value: %.2f\n",Temp);
-	printf("PH value: %.2f\n", PH_value);
-	printf("TDS value: %.2f\n",TDS_value);
-	printf("Turbidity value: %.2f \n",Turbidity_value);
-	printf("%s\n",gps_data);	
+	char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH];
+	char coordinates[2][MAX_STRING_LENGTH] = {0};
+	char gps_data_copy[100] = {0};
 
+	strcpy(gps_data_copy, gps_data);
+	split_by(",", gps_data_copy, gps_info);
+
+	format_coordinates(gps_info, coordinates);
+
+	// printf("**************\n");
+	// printf("X raw: %s\n", gps_info[LATITUDE_INDEX]);
+	// printf("Y raw: %s\n", gps_info[LONGITUDE_INDEX]);
+	// printf("Horizontal direction: %s\n", gps_info[HORIZONTAL_DIRECTION_INDEX]);
+	// printf("Vertical direction: %s\n", gps_info[VERTICAL_DIRECTION_INDEX]);
+	// printf("X: %s\n", coordinates[X]);
+	// printf("Y: %s\n", coordinates[Y]);
+	// printf("**************\n");
+
+	create_new_sample_file(Turbidity_value, PH_value, Temp, TDS_value, coordinates[X], coordinates[Y]);
 	return 0;
 }

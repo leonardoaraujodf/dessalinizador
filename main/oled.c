@@ -407,13 +407,13 @@ void WriteCmdOLED(const unsigned char* data, unsigned char size){
     OpenTransmission(OLED_I2C_ADDRESS);
    	data_sent = write(i2c_fd,data,size);
     if(data_sent < size){
-        printf("Error trying to send a command.\n");
+        printf("[ERROR] Error trying to send an I2C command.\n");
     }
     CloseTransmission();
 }
 
 void WriteDataOLED(const unsigned char* data, unsigned int size){
-    int data_sent;
+	int data_sent;
 	WriteCmdOLED(WriteInit,sizeof(WriteInit));
     
     /*command for sending data*/
@@ -421,8 +421,8 @@ void WriteDataOLED(const unsigned char* data, unsigned int size){
             
         data_sent = write(i2c_fd,data,size);
         if(data_sent < size){
-            printf("Error trying to send data.\n");
-        }
+					printf("[ERROR] Error trying to send an I2C data.\n");
+				}
 
         CloseTransmission();
     /*command for sending data*/    
@@ -436,10 +436,10 @@ void OLEDInit(){
 void OpenTransmission(int address){
 	i2c_fd = open("/dev/i2c-1", O_RDWR);
 	if(i2c_fd < 0){
-		printf("Error opening i2c\n");
+		printf("[ERROR] Error opening an I2C file.\n");
 	}
 	if(ioctl(i2c_fd, I2C_SLAVE,address) < 0){
-		printf("Error at ioctl\n");
+		printf("[ERROR] Error at IOCTL (I2C file).\n");
 	}
 }
 
@@ -453,28 +453,28 @@ void get_Battlevel(int *values){
 	float level = get_median(values);
 	
 	if(level < 865){
-		printf("Battery level: 20 %\n");
+		printf("[LOG] Battery level: 20 %\n");
 		//WriteDataOLED(josy,sizeof(josy));
 		WriteDataOLED(bat_20,sizeof(bat_20));
 		turn_Bomb(TURN_BOMB_OFF);
 	}
 	else if(level > 865 && level < 884){
-		printf("Battery level: 40 %\n");
+		printf("[LOG] Battery level: 40 %\n");
 		WriteDataOLED(bat_40,sizeof(bat_40));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 884 && level < 902){
-		printf("Battery level: 60 %\n");
+		printf("[LOG] Battery level: 60 %\n");
 		WriteDataOLED(bat_60,sizeof(bat_60));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 902 && level < 920){
-		printf("Battery level: 80 %\n");
+		printf("[LOG] Battery level: 80 %\n");
 		WriteDataOLED(bat_80,sizeof(bat_80));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 920){
-		printf("Battery level: 100 %\n");
+		printf("[LOG] Battery level: 100 %\n");
 		WriteDataOLED(bat_100,sizeof(bat_100));
 		turn_Bomb(TURN_BOMB_ON);
 	}
@@ -484,18 +484,18 @@ void turn_Bomb(unsigned char value){
 	unsigned char data_received;
 	OpenTransmission(MSP430_ADDRESS);
 	if(write(i2c_fd,&value,1) < 0){
-		printf("Error trying to write in i2c_fd.\n");
+		printf("[ERROR] Error trying to write in i2c_fd.\n");
 	}
 	if(read(i2c_fd,&data_received,1) < 0){
-		printf("Error trying to read in i2c_fd.\n");
+		printf("[ERROR] Error trying to read in i2c_fd.\n");
 	}
 	else{
 		//printf("Data Received: %d\n\n",data_received);
 		if(data_received == TURN_BOMB_ON){
-			printf("Bomb is on.\n");
+			printf("[LOG] Bomb is on.\n");
 		}
 		else if(data_received == TURN_BOMB_OFF){
-			printf("Bomb is off.\n");
+			printf("[LOG] Bomb is off.\n");
 		}
 	}	
 	CloseTransmission();
@@ -507,7 +507,7 @@ float get_Temp(void){
 	char c,*text;
 	fp = open(TEMP_PATH, O_RDONLY);
 	if(fp==-1){
-		printf("Erro na abertura do arquivo.\n");
+		printf("[ERROR] Error opening temperature sensor file.\n");
 		exit(1);
 	}
 	while(read(fp, &c, 1) != 0){
@@ -613,4 +613,99 @@ float get_median(int *values){
 	return ((values[14] + values[15])/2.0) ;
 }
 
+void split_by(char *token, char *string, char array[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH])
+{
+	char *raw_string = string;
+	char *raw_string_info = NULL;
 
+	int i;
+	for (i = 0, raw_string_info = strsep(&raw_string, ","); raw_string_info != NULL; i++, raw_string_info = strsep(&raw_string, ","))
+	{
+		strcpy(array[i], raw_string_info);
+	}
+}
+
+double convert_dms_cordinate_to_decimal(double dms_coordinate)
+{
+	int degrees = dms_coordinate / 100;
+	double minutes = dms_coordinate - degrees * 100;
+	double decimal_coordinate = degrees + minutes / 60.0;
+
+	return decimal_coordinate;
+}
+
+int compute_direction(char *raw_direction)
+{
+	int direction = (strcmp(raw_direction, "W") == 0) || (strcmp(raw_direction, "S") == 0) ? -1 : 1;
+
+	return direction;
+}
+
+void format_coordinate(char coordinate, char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH])
+{
+	int COORDINATE_INDEX = 0;
+	int COORDINATE_DIRECTION_INDEX = 0;
+	int COORDINATE = 0;
+
+	if (coordinate == 'X')
+	{
+		COORDINATE_INDEX = LATITUDE_INDEX;
+		COORDINATE_DIRECTION_INDEX = HORIZONTAL_DIRECTION_INDEX;
+		COORDINATE = X;
+	}
+	else
+	{
+		COORDINATE_INDEX = LONGITUDE_INDEX;
+		COORDINATE_DIRECTION_INDEX = VERTICAL_DIRECTION_INDEX;
+		COORDINATE = Y;
+	}
+
+	double dms_coordinate = strtod(gps_info[COORDINATE_INDEX], NULL);
+	double decimal_coordinate = convert_dms_cordinate_to_decimal(dms_coordinate);
+	double coordinate_with_direction = decimal_coordinate * compute_direction(gps_info[COORDINATE_DIRECTION_INDEX]);
+	char formated_coordinate[50] = {0};
+
+	snprintf(coordinates[COORDINATE], 50, "%lf", coordinate_with_direction);
+}
+
+void format_coordinates(char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH], char coordinates[2][MAX_STRING_LENGTH])
+{
+	format_coordinate('X', gps_info, coordinates);
+	format_coordinate('Y', gps_info, coordinates);
+}
+
+void get_collection_date(char *formatted_time)
+{
+	time_t now = time(NULL);
+	struct tm *t = localtime(&now);
+
+	sprintf(formatted_time, "%d-%02d-%02d %02d:%02d:%02d", t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
+}
+
+void create_new_sample_file(float turbidity, float ph, float temperature, float tds, char *x_coordinate, char *y_coordinate)
+{
+	FILE *new_sample = fopen(NEW_SAMPLE_PATH, "w");
+	char collection_date[MAX_STRING_LENGTH] = {0};
+	if (new_sample == NULL)
+	{
+		printf("ERROR: New sample file could not be created!\n");
+		exit(-1);
+	}
+	else
+	{
+		printf("[LOG] Creating new sample file...\n");
+	}
+
+	// Writing indicators
+	get_collection_date(collection_date);
+
+	fprintf(new_sample, "turbidity: %.2f \n", turbidity);
+	fprintf(new_sample, "ph: %.2f\n", ph);
+	fprintf(new_sample, "temperature: %.2f\n", temperature);
+	fprintf(new_sample, "tds: %.2f\n", tds);
+	fprintf(new_sample, "collection_date: %s\n", collection_date);
+	fprintf(new_sample, "latitude: %s\n", x_coordinate);
+	fprintf(new_sample, "longitude: %s\n", y_coordinate);
+
+	fclose(new_sample);
+}

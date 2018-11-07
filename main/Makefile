@@ -7,3 +7,5 @@ oled.o: oled.c oled.h
 	sudo gcc -c oled.c -lwiringPi
 clean:
 	sudo rm -f *.o *.out
+run:
+	sudo ./final.out
