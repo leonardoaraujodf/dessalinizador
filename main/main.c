@@ -85,12 +85,6 @@ int main(){
 	// printf("Y: %s\n", coordinates[Y]);
 	// printf("**************\n");
 
-	printf("turbidity: %.2f \n", Turbidity_value);
-	printf("ph: %.2f\n", PH_value);
-	printf("temperature: %.2f\n", Temp);
-	printf("tds: %.2f\n", TDS_value);
-	printf("collection_date: \n");
-	printf("%s\n",gps_data);	
-
+	create_new_sample_file(Turbidity_value, PH_value, Temp, TDS_value, coordinates[X], coordinates[Y]);
 	return 0;
 }
