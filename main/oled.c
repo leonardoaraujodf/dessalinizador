@@ -456,23 +456,49 @@ void get_Battlevel(int *values){
 		printf("Battery level: 20 %\n");
 		//WriteDataOLED(josy,sizeof(josy));
 		WriteDataOLED(bat_20,sizeof(bat_20));
+		turn_Bomb(TURN_BOMB_OFF);
 	}
 	else if(level > 865 && level < 884){
 		printf("Battery level: 40 %\n");
 		WriteDataOLED(bat_40,sizeof(bat_40));
+		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 884 && level < 902){
 		printf("Battery level: 60 %\n");
 		WriteDataOLED(bat_60,sizeof(bat_60));
+		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 902 && level < 920){
 		printf("Battery level: 80 %\n");
 		WriteDataOLED(bat_80,sizeof(bat_80));
+		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 920){
 		printf("Battery level: 100 %\n");
 		WriteDataOLED(bat_100,sizeof(bat_100));
+		turn_Bomb(TURN_BOMB_ON);
 	}
+}
+
+void turn_Bomb(unsigned char value){
+	unsigned char data_received;
+	OpenTransmission(MSP430_ADDRESS);
+	if(write(i2c_fd,&value,1) < 0){
+		printf("Error trying to write in i2c_fd.\n");
+	}
+	if(read(i2c_fd,&data_received,1) < 0){
+		printf("Error trying to read in i2c_fd.\n");
+	}
+	else{
+		//printf("Data Received: %d\n\n",data_received);
+		if(data_received == TURN_BOMB_ON){
+			printf("Bomb is on.\n");
+		}
+		else if(data_received == TURN_BOMB_OFF){
+			printf("Bomb is off.\n");
+		}
+	}	
+	CloseTransmission();
 }
 
 float get_Temp(void){
@@ -549,7 +575,7 @@ int get_localization(char *gps_data){
 	serialFlush(uart0_fd);
 	system("stty -F " TTY " 9600");
 	system("stty -F " TTY " -echo");
-	system("stty -F " TTY);
+	//system("stty -F " TTY);
 	while(out == 0){
 		character = serialGetchar(uart0_fd);
 		//printf("%c",character);

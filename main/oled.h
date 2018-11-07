@@ -13,6 +13,10 @@
 #include <wiringSerial.h>
 #include <string.h>
 
+//For the water bomb
+#define TURN_BOMB_ON 0x56
+#define TURN_BOMB_OFF 0x57
+
 //UART file for the GPS module
 #define TTY "/dev/ttyS0"
 
@@ -87,5 +91,6 @@ float get_PH(int *values);
 int compare (const void * a, const void * b);
 float get_median(int *values);
 int get_localization(char *gps_data);
+void turn_Bomb(unsigned char value);
 
 #endif

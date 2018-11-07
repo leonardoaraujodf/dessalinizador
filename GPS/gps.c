@@ -24,7 +24,7 @@ void ctrl_c(int sig){
 
 
 int main(){
-	char character,sentence[5],gps_data[100] = {0};
+	char character,sentence[6],gps_data[100] = {0};
 	int i;
 	signal(SIGINT, ctrl_c);
 	uart0_fd = serialOpen(TTY, 9600);
