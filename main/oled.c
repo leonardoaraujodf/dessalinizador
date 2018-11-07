@@ -407,13 +407,13 @@ void WriteCmdOLED(const unsigned char* data, unsigned char size){
     OpenTransmission(OLED_I2C_ADDRESS);
    	data_sent = write(i2c_fd,data,size);
     if(data_sent < size){
-        printf("Error trying to send a command.\n");
+        printf("[ERROR] Error trying to send an I2C command.\n");
     }
     CloseTransmission();
 }
 
 void WriteDataOLED(const unsigned char* data, unsigned int size){
-    int data_sent;
+	int data_sent;
 	WriteCmdOLED(WriteInit,sizeof(WriteInit));
     
     /*command for sending data*/
@@ -421,8 +421,8 @@ void WriteDataOLED(const unsigned char* data, unsigned int size){
             
         data_sent = write(i2c_fd,data,size);
         if(data_sent < size){
-            printf("Error trying to send data.\n");
-        }
+					printf("[ERROR] Error trying to send an I2C data.\n");
+				}
 
         CloseTransmission();
     /*command for sending data*/    
@@ -436,10 +436,10 @@ void OLEDInit(){
 void OpenTransmission(int address){
 	i2c_fd = open("/dev/i2c-1", O_RDWR);
 	if(i2c_fd < 0){
-		printf("Error opening i2c\n");
+		printf("[ERROR] Error opening an I2C file.\n");
 	}
 	if(ioctl(i2c_fd, I2C_SLAVE,address) < 0){
-		printf("Error at ioctl\n");
+		printf("[ERROR] Error at IOCTL (I2C file).\n");
 	}
 }
 
@@ -453,28 +453,28 @@ void get_Battlevel(int *values){
 	float level = get_median(values);
 	
 	if(level < 865){
-		printf("Battery level: 20 %\n");
+		printf("[LOG] Battery level: 20 %\n");
 		//WriteDataOLED(josy,sizeof(josy));
 		WriteDataOLED(bat_20,sizeof(bat_20));
 		turn_Bomb(TURN_BOMB_OFF);
 	}
 	else if(level > 865 && level < 884){
-		printf("Battery level: 40 %\n");
+		printf("[LOG] Battery level: 40 %\n");
 		WriteDataOLED(bat_40,sizeof(bat_40));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 884 && level < 902){
-		printf("Battery level: 60 %\n");
+		printf("[LOG] Battery level: 60 %\n");
 		WriteDataOLED(bat_60,sizeof(bat_60));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 902 && level < 920){
-		printf("Battery level: 80 %\n");
+		printf("[LOG] Battery level: 80 %\n");
 		WriteDataOLED(bat_80,sizeof(bat_80));
 		turn_Bomb(TURN_BOMB_ON);
 	}
 	else if(level > 920){
-		printf("Battery level: 100 %\n");
+		printf("[LOG] Battery level: 100 %\n");
 		WriteDataOLED(bat_100,sizeof(bat_100));
 		turn_Bomb(TURN_BOMB_ON);
 	}
@@ -484,18 +484,18 @@ void turn_Bomb(unsigned char value){
 	unsigned char data_received;
 	OpenTransmission(MSP430_ADDRESS);
 	if(write(i2c_fd,&value,1) < 0){
-		printf("Error trying to write in i2c_fd.\n");
+		printf("[ERROR] Error trying to write in i2c_fd.\n");
 	}
 	if(read(i2c_fd,&data_received,1) < 0){
-		printf("Error trying to read in i2c_fd.\n");
+		printf("[ERROR] Error trying to read in i2c_fd.\n");
 	}
 	else{
 		//printf("Data Received: %d\n\n",data_received);
 		if(data_received == TURN_BOMB_ON){
-			printf("Bomb is on.\n");
+			printf("[LOG] Bomb is on.\n");
 		}
 		else if(data_received == TURN_BOMB_OFF){
-			printf("Bomb is off.\n");
+			printf("[LOG] Bomb is off.\n");
 		}
 	}	
 	CloseTransmission();
@@ -507,7 +507,7 @@ float get_Temp(void){
 	char c,*text;
 	fp = open(TEMP_PATH, O_RDONLY);
 	if(fp==-1){
-		printf("Erro na abertura do arquivo.\n");
+		printf("[ERROR] Error opening temperature sensor file.\n");
 		exit(1);
 	}
 	while(read(fp, &c, 1) != 0){
@@ -688,12 +688,12 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 	char collection_date[MAX_STRING_LENGTH] = {0};
 	if (new_sample == NULL)
 	{
-		printf("ERROR: New sample could not be created!\n");
+		printf("ERROR: New sample file could not be created!\n");
 		exit(-1);
 	}
 	else
 	{
-		printf("[LOG] Creating new sample...\n");
+		printf("[LOG] Creating new sample file...\n");
 	}
 
 	// Writing indicators
