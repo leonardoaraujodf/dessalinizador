@@ -69,8 +69,8 @@ int main(){
 
 	char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH];
 	char coordinates[2][MAX_STRING_LENGTH] = {0};
-
 	char gps_data_copy[100] = {0};
+
 	strcpy(gps_data_copy, gps_data);
 	split_by(",", gps_data_copy, gps_info);
 
