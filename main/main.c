@@ -70,23 +70,26 @@ int main(){
 	char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH];
 	char coordinates[2][MAX_STRING_LENGTH] = {0};
 
-	split_by(",", gps_data, gps_info);
+	char gps_data_copy[100] = {0};
+	strcpy(gps_data_copy, gps_data);
+	split_by(",", gps_data_copy, gps_info);
 
 	format_coordinates(gps_info, coordinates);
 
-	printf("**************\n");
-	printf("X raw: %s\n", gps_info[LATITUDE_INDEX]);
-	printf("Y raw: %s\n", gps_info[LONGITUDE_INDEX]);
-	printf("Horizontal direction: %s\n", gps_info[HORIZONTAL_DIRECTION_INDEX]);
-	printf("Vertical direction: %s\n", gps_info[VERTICAL_DIRECTION_INDEX]);
-	printf("X: %s\n", coordinates[X]);
-	printf("Y: %s\n", coordinates[Y]);
-	printf("**************\n");
+	// printf("**************\n");
+	// printf("X raw: %s\n", gps_info[LATITUDE_INDEX]);
+	// printf("Y raw: %s\n", gps_info[LONGITUDE_INDEX]);
+	// printf("Horizontal direction: %s\n", gps_info[HORIZONTAL_DIRECTION_INDEX]);
+	// printf("Vertical direction: %s\n", gps_info[VERTICAL_DIRECTION_INDEX]);
+	// printf("X: %s\n", coordinates[X]);
+	// printf("Y: %s\n", coordinates[Y]);
+	// printf("**************\n");
 
-	printf("Temperature Value: %.2f\n",Temp);
-	printf("PH value: %.2f\n", PH_value);
-	printf("TDS value: %.2f\n",TDS_value);
-	printf("Turbidity value: %.2f \n",Turbidity_value);
+	printf("turbidity: %.2f \n", Turbidity_value);
+	printf("ph: %.2f\n", PH_value);
+	printf("temperature: %.2f\n", Temp);
+	printf("tds: %.2f\n", TDS_value);
+	printf("collection_date: \n");
 	printf("%s\n",gps_data);	
 
 	return 0;
