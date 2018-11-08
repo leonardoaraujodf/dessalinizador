@@ -453,7 +453,7 @@ void get_Battlevel(int *values){
 	float level = get_median(values);
 	
 	if(level < 865){
-		printf("[LOG] Battery level: 20 %\n");
+		printf("[LOG] Battery level under 20 %\n");
 		//WriteDataOLED(josy,sizeof(josy));
 		WriteDataOLED(bat_20,sizeof(bat_20));
 		turn_Bomb(TURN_BOMB_OFF);
