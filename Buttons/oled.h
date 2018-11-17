@@ -17,6 +17,15 @@
 #include <signal.h>
 #include <pthread.h>
 
+//To get A/D samples from MSP430
+
+#define GET_MSP_SAMPLES 0x55
+
+//For the level sensor
+#define DETECT_LEVEL_SENSOR 0x5E
+#define LEVEL_SENSOR_OFF  0x5F
+#define LEVEL_SENSOR_ON 0x60
+
 //For the water bomb
 #define TURN_BOMB_ON 0x56
 #define TURN_BOMB_OFF 0x57
@@ -26,9 +35,6 @@
 
 //File for the temperature sensor - One wire protocol
 #define TEMP_PATH "/sys/bus/w1/devices/28-01131b9500b6/w1_slave"
-
-//I2C file descriptor
-int i2c_fd;
 
 //MSP430 i2c address
 #define MSP430_ADDRESS 0x0F
@@ -56,7 +62,7 @@ int i2c_fd;
 
 // Hardware Config (pg.31)
 #define OLED_CMD_SET_DISPLAY_START_LINE 0x40
-#define OLED_CMD_SET_SEGMENT_REMAP      0xA1 
+#define OLED_CMD_SET_SEGMENT_REMAP      0xA1
 #define OLED_CMD_SET_MUX_RATIO          0xA8    // follow with 0x3F = 64 MUX
 #define OLED_CMD_SET_COM_SCAN_MODE      0xC8
 #define OLED_CMD_SET_DISPLAY_OFFSET     0xD3    // follow with 0x00
@@ -95,10 +101,13 @@ int i2c_fd;
 #define NUMBER_GPIO_OUTPUTS 2
 #define NUMBER_THREADS NUMBER_GPIO_OUTPUTS
 
+
 int GPIO_fd[NUMBER_GPIO_OUTPUTS];
 pthread_t GPIO_tid[NUMBER_THREADS];
 pthread_attr_t attr[NUMBER_THREADS];
 
+//I2C file descriptor
+int i2c_fd;
 
 struct analog
 {
@@ -138,5 +147,7 @@ void GPIO_open(int GPIO_fd_num,int GPIO_num);
 void GPIO_close(int GPIO_fd_num);
 int GPIO_get(int GPIO_fd_num);
 void get_samples(void);
+void verify_LevelSensor(void);
+void get_MSPsamples(struct analog *sensors, unsigned int start_comm);
 
 #endif

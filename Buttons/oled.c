@@ -415,18 +415,18 @@ void WriteCmdOLED(const unsigned char* data, unsigned char size){
 void WriteDataOLED(const unsigned char* data, unsigned int size){
 	int data_sent;
 	WriteCmdOLED(WriteInit,sizeof(WriteInit));
-    
+
     /*command for sending data*/
         OpenTransmission(OLED_I2C_ADDRESS);
-            
+
         data_sent = write(i2c_fd,data,size);
         if(data_sent < size){
 					printf("[ERROR] Error trying to send an I2C data.\n");
 				}
 
         CloseTransmission();
-    /*command for sending data*/    
-      
+    /*command for sending data*/
+
 }
 
 void OLEDInit(){
@@ -451,7 +451,7 @@ void get_Battlevel(int *values){
 
 	qsort(values,30,sizeof(int),compare);
 	float level = get_median(values);
-	
+
 	if(level < 865){
 		printf("[LOG] Battery level under 20 %\n");
 		//WriteDataOLED(josy,sizeof(josy));
@@ -492,12 +492,12 @@ void turn_Bomb(unsigned char value){
 	else{
 		//printf("Data Received: %d\n\n",data_received);
 		if(data_received == TURN_BOMB_ON){
-			printf("[LOG] Bomb is on.\n");
+			printf("[LOG] Pump is on.\n");
 		}
 		else if(data_received == TURN_BOMB_OFF){
-			printf("[LOG] Bomb is off.\n");
+			printf("[LOG] Pump is off.\n");
 		}
-	}	
+	}
 	CloseTransmission();
 }
 
@@ -518,7 +518,7 @@ float get_Temp(void){
 	lseek(fp, 0, SEEK_SET);
 	read(fp,text,length);
 	i_temp = atoi(&text[length-6]);
-	temp = i_temp/1000.0;	
+	temp = i_temp/1000.0;
 	//printf("Temperature: %.3f C\n",temp);
 	close(fp);
 	return temp;
@@ -559,19 +559,19 @@ int get_localization(char *gps_data){
 	int uart0_fd;
 	char character,sentence[6] = {0};
 	int i,out = 0;
-	
+
 	uart0_fd = serialOpen(TTY, 9600);
-	
+
 	if(uart0_fd == -1){
 		puts("Error trying to open UART.");
 		return -1;
 	}
-	
+
 	if(wiringPiSetup() == -1){
 		puts("Error in wiringPiSetup().");
 		return -1;
 	}
-	
+
 	serialFlush(uart0_fd);
 	system("stty -F " TTY " 9600");
 	system("stty -F " TTY " -echo");
@@ -711,12 +711,12 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 }
 
 void ctrl_c(int sig){
-	
+
 	int i;
 	for(i=0; i < NUMBER_THREADS; i++){
 		pthread_cancel(GPIO_tid[i]);
 	}
-	
+
 	GPIO_close(ON_GPIO_fd);
 	GPIO_close(OFF_GPIO_fd);
 	GPIO_free(ON_BTN);
@@ -761,7 +761,7 @@ void GPIO_setup(int GPIO_num){
 	sprintf(str,"echo in > /sys/class/gpio/gpio%d/direction", GPIO_num);
 	system(str);
 	printf("[LOG]: Configured.\n");
-	
+
 	if(GPIO_num == ON_BTN){
 		GPIO_open(ON_GPIO_fd,GPIO_num);
 	}
@@ -788,11 +788,11 @@ void GPIO_free(int GPIO_num){
 void GPIO_open(int GPIO_fd_num,int GPIO_num){
 	char str[50];
 	sprintf(str,"/sys/class/gpio/gpio%d/value", GPIO_num);
-	GPIO_fd[GPIO_fd_num] = open(str, O_RDONLY);	
+	GPIO_fd[GPIO_fd_num] = open(str, O_RDONLY);
 }
 
 void GPIO_close(int GPIO_fd_num){
-	
+
 	close(GPIO_fd[GPIO_fd_num]);
 }
 
@@ -807,39 +807,13 @@ int GPIO_get(int GPIO_fd_num){
 void get_samples(void){
 
 	struct analog sensors;
-
-	int i;
-	unsigned char start_comm = 0x55;
 	OLEDInit();
-	OpenTransmission(MSP430_ADDRESS);
 
+  get_MSPsamples(&sensors,GET_MSP_SAMPLES);
+  get_Battlevel(sensors.bat_level);
+  verify_LevelSensor();
+  get_MSPsamples(&sensors,GET_MSP_SAMPLES);
 
-	for(i=0; i<30; i++){
-
-		if(write(i2c_fd,&start_comm,1) < 0){
-			printf("Error trying to write in i2c_fd.\n");
-		}
-
-		if(read(i2c_fd,sensors.data,8) < 0){
-			printf("Error trying to read in i2c_fd.\n");
-		}
-
-		sensors.ph_sensor[i] = sensors.data[0];
-		sensors.ph_sensor[i] += sensors.data[1] << 8;
-
-		sensors.turb_sensor[i] = sensors.data[2];
-		sensors.turb_sensor[i] += sensors.data[3] << 8;
-
-		sensors.tds_sensor[i] = sensors.data[4];
-		sensors.tds_sensor[i] += sensors.data[5] << 8;
-
-		sensors.bat_level[i] = sensors.data[6];
-		sensors.bat_level[i] += sensors.data[7] << 8;
-
-	}
-
-	CloseTransmission();
-	
 	/*
 	for(i=0;i<30;i++){
 		printf("Ph sensor: %d\n",sensors.ph_sensor[i]);
@@ -855,7 +829,7 @@ void get_samples(void){
 	PH_value = get_PH(sensors.ph_sensor);
 	TDS_value = get_TDS(sensors.tds_sensor);
 	Turbidity_value = get_Turb(sensors.turb_sensor);
-	get_Battlevel(sensors.bat_level);
+	//get_Battlevel(sensors.bat_level);
 	get_localization(gps_data);
 
 	char gps_info[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH];
@@ -881,4 +855,58 @@ void get_samples(void){
 	system("curl localhost:8000/new_sample");
 }
 
+void verify_LevelSensor(void){
+  unsigned char value = DETECT_LEVEL_SENSOR, data_received;
+  while(data_received != LEVEL_SENSOR_ON){
+    OpenTransmission(MSP430_ADDRESS);
+    if(write(i2c_fd,&value,1) < 0){
+      printf("[ERROR] Error trying to write in i2c_fd.\n");
+    }
+    if(read(i2c_fd,&data_received,1) < 0){
+      printf("[ERROR] Error trying to read in i2c_fd.\n");
+    }
+    else{
+      //printf("Data Received: %d\n\n",data_received);
+      if(data_received == LEVEL_SENSOR_OFF){
+        printf("[LOG] Waiting water to be in the level...\n");
+      }
+      else if(data_received == LEVEL_SENSOR_ON){
+        printf("[LOG] Water is in the level. Taking samples...\n");
+      }
+    }
+    CloseTransmission();
+    sleep(1);
+  }
+}
 
+void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
+
+  int i;
+  OpenTransmission(MSP430_ADDRESS);
+  for(i=0; i<30; i++){
+
+    if(write(i2c_fd,&start_comm,1) < 0){
+      printf("Error trying to write in i2c_fd.\n");
+    }
+
+    if(read(i2c_fd,sensors->data,8) < 0){
+      printf("Error trying to read in i2c_fd.\n");
+    }
+
+    sensors->ph_sensor[i] = sensors->data[0];
+    sensors->ph_sensor[i] += sensors->data[1] << 8;
+
+    sensors->turb_sensor[i] = sensors->data[2];
+    sensors->turb_sensor[i] += sensors->data[3] << 8;
+
+    sensors->tds_sensor[i] = sensors->data[4];
+    sensors->tds_sensor[i] += sensors->data[5] << 8;
+
+    sensors->bat_level[i] = sensors->data[6];
+    sensors->bat_level[i] += sensors->data[7] << 8;
+
+  }
+
+  CloseTransmission();
+
+}
