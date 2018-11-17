@@ -141,16 +141,16 @@ void init_AD(void){
 }
 
 void init_Pump(void){
-	P1OUT &= ~PUMP_PIN;
-	P1DIR |= PUMP_PIN;
+	P2OUT &= ~PUMP_PIN;
+	P2DIR |= PUMP_PIN;
 }
 
 void turn_Pump(unsigned char value){
 	if(value == TURN_PUMP_ON){
-		P1OUT |= PUMP_PIN;
+		P2OUT |= PUMP_PIN;
 	}
 	else{
-		P1OUT &= ~PUMP_PIN;
+		P2OUT &= ~PUMP_PIN;
 	}
 }
 
