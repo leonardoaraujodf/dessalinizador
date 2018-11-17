@@ -198,9 +198,9 @@ void turn_LowValve(unsigned char value){
 
 void setupLevelSensor(void){
   P1DIR &= ~LEVEL_SENSOR; //level sensor as input
-  P1IES &= ~LEVEL_SENSOR; //falling edge from LOW TO HIGH
+  P1IES |= LEVEL_SENSOR; //falling edge from HIGH TO LOW
   P1IE |= LEVEL_SENSOR; //Interrupt on Input Pin LEVEL_SENSOR
-  P1IFG |= LEVEL_SENSOR; //Interrupt flag cleared
+  P1IFG &= ~LEVEL_SENSOR; //Interrupt flag cleared
 }
 
 void treat_DataReceived(void){
