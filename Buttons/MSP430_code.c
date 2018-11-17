@@ -155,7 +155,7 @@ void turn_Pump(unsigned char value){
 }
 
 void init_SamplesMotor(void){
-  P2OUT &= SAMPLES_MOTOR;
+  P2OUT &= ~SAMPLES_MOTOR;
   P2DIR |= SAMPLES_MOTOR;
 }
 
@@ -164,7 +164,7 @@ void turn_SamplesMotor(unsigned char value){
     P2OUT |= SAMPLES_MOTOR;
   }
   else{
-    P2OUT &= SAMPLES_MOTOR;
+    P2OUT &= ~SAMPLES_MOTOR;
   }
 }
 
@@ -175,7 +175,7 @@ void init_TopValve(void){
 
 void turn_TopValve(unsigned char value){
   if(value == TOP_VALVE_ON){
-		P2OUT &= TOP_VALVE; //top valve is on
+		P2OUT &= ~TOP_VALVE; //top valve is on
   }
   else{
     P2OUT |= TOP_VALVE; //top valve is off
@@ -189,7 +189,7 @@ void init_LowValve(){
 
 void turn_LowValve(unsigned char value){
   if(value == LOW_VALVE_ON){
-		P2OUT &= LOW_VALVE; //low valve is on
+		P2OUT &= ~LOW_VALVE; //low valve is on
   }
   else{
     P2OUT |= LOW_VALVE; //low valve is off
@@ -225,7 +225,7 @@ void treat_DataReceived(void){
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
 	else if(UCB0RXBUF == TURN_PUMP_ON){
-		turn_LowValve(TOP_VALVE_ON);
+		turn_TopValve(TOP_VALVE_ON);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 
 		turn_Pump(TURN_PUMP_ON);
