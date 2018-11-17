@@ -81,6 +81,9 @@ void turn_Pump(unsigned char value);
 void init_SamplesMotor(void);
 void turn_SamplesMotor(unsigned char value);
 void init_TopValve(void);
+void turn_TopValve(unsigned char value);
+void init_LowValve(void);
+void turn_LowValve(unsigned char value);
 void setupLevelSensor(void);
 void treat_DataReceived(void);
 
