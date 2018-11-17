@@ -269,7 +269,7 @@ void treat_DataReceived(void){
 
 interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
   if(IFG2 & UCB0RXIFG){
-    treat_DataReceived(void);
+    treat_DataReceived();
 	}
   IFG2 &= ~(UCB0TXIFG|UCB0RXIFG);
 }
