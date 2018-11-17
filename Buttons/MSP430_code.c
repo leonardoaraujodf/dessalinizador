@@ -198,7 +198,7 @@ void turn_LowValve(unsigned char value){
 
 void setupLevelSensor(void){
   P1DIR &= ~LEVEL_SENSOR; //level sensor as input
-  P1IES &= ~LEVEL_SENSOR; //falling edge from HIGH TO LOW
+  P1IES &= ~LEVEL_SENSOR; //falling edge from LOW TO HIGH
   P1IE |= LEVEL_SENSOR; //Interrupt on Input Pin LEVEL_SENSOR
   P1IFG &= ~LEVEL_SENSOR; //Interrupt flag cleared
 }
@@ -276,10 +276,10 @@ interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
 
 interrupt(PORT1_VECTOR) Port_1(void){
 
-  if((P1IN & LEVEL_SENSOR) != 0){
+  if((P1IN & LEVEL_SENSOR) == 1){
     turn_TopValve(TOP_VALVE_OFF);
     turn_SamplesMotor(SAMPLES_MOTOR_OFF);
-		level_sensor == 1; //level sensor variable is 1, it means that the samples
+		level_sensor = 1; //level sensor variable is 1, it means that the samples
 //could be taken, and RPI should be advised.
   }
 
