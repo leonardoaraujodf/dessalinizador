@@ -71,7 +71,7 @@ unsigned int bat_level;
 //If this variable is zero, it says that the water level is not good enough
 //Otherwise, it will say that the water level is OK to take samples.
 
-unsigned char level_sensor = 0;
+volatile unsigned int level_sensor = 0;
 
 void init_I2C(void);
 void Transmit(unsigned int rdata,unsigned int length);
@@ -276,7 +276,7 @@ interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
 
 interrupt(PORT1_VECTOR) Port_1(void){
 
-  if((P1IN & LEVEL_SENSOR) == 1){
+  if((P1IN & LEVEL_SENSOR) != 0){
     turn_TopValve(TOP_VALVE_OFF);
     turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 		level_sensor = 1; //level sensor variable is 1, it means that the samples
