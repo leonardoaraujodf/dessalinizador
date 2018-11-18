@@ -226,6 +226,8 @@ void treat_DataReceived(void){
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
 	else if(UCB0RXBUF == TURN_PUMP_ON){
+		level_sensor = 0; //This is because the level sensor has to compute
+		//a transition only when the on button in the rpi is pressed.
 		turn_TopValve(TOP_VALVE_ON);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 
