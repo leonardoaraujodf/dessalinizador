@@ -33,7 +33,7 @@
 //For the low LOW VALVE
 #define LOW_VALVE_ON 0x5C
 #define LOW_VALVE_OFF 0x5D
-#define TIME_FOR_LOW_VALVE_ON_IN_SECONDS 3
+#define TIME_FOR_LOW_VALVE_ON_IN_SECONDS 10
 
 //UART file for the GPS module
 #define TTY "/dev/ttyS0"
