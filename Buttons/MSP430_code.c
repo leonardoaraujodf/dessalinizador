@@ -235,9 +235,7 @@ void treat_DataReceived(void){
 	else if(UCB0RXBUF == TURN_PUMP_ON){
 		level_sensor = 0; //This is because the level sensor has to compute
 		//a transition only when the on button in the rpi is pressed.
-
-		Q[0] = 0.0;
-		Q[1] = 0.0;
+		Q[0] = 0;
 		Vol[0] = 0.0;
 		Vol[1] = 0.0;
 		Volume = 0.0;
@@ -339,11 +337,11 @@ interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
 		//    P1OUT ^= LED;
 		turn_Pump(TURN_PUMP_OFF);
 		//Initializing again the flow sensor;
-		Q[0] = 0.0;
+		/*Q[0] = 0.0;
 		Q[1] = 0.0;
 		Vol[0] = 0.0;
 		Vol[1] = 0.0;
-		Volume = 0.0;
+		Volume = 0.0;*/
 	}
 	TA0CTL &= ~TAIFG;
 }
