@@ -295,8 +295,6 @@ void Setup_FlowSensor(void){
     P1IES |= FLOW_SENSOR; //Interrupt in a transition from HIGH to LOW
     P1IE |= FLOW_SENSOR; //Interrupt Enabled for the flow sensor
     P1IFG &= ~FLOW_SENSOR; //Interrup flag cleared
-    P1OUT &= ~LED;
-    P1DIR |= LED;
 }
 
 interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
