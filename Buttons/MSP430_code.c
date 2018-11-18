@@ -249,6 +249,8 @@ void treat_DataReceived(void){
 		else if (level_sensor == 1){
 			level_sensor = 0; //RPI was advised about the level sensor, now turn the
 			//variable off for another sample in the future.
+			turn_TopValve(TOP_VALVE_OFF);
+	    turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 			while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 			Transmit(LEVEL_SENSOR_ON,1);
 			UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
@@ -278,8 +280,6 @@ interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
 interrupt(PORT1_VECTOR) Port_1(void){
 
   if((P1IN & LEVEL_SENSOR) == 0){
-    turn_TopValve(TOP_VALVE_OFF);
-    turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 		level_sensor = 1; //level sensor variable is 1, it means that the samples
 //could be taken, and RPI should be advised.
 	}

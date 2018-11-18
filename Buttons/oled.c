@@ -692,7 +692,7 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 	char collection_date[MAX_STRING_LENGTH] = {0};
 	if (new_sample == NULL)
 	{
-		printf("ERROR: New sample file could not be created!\n");
+		printf("[ERROR] New sample file could not be created!\n");
 		exit(-1);
 	}
 	else
@@ -737,7 +737,7 @@ void *GPIO_handler(void *param){
 		sprintf(my_gpio,"On button");
 		while(1){
 			if(GPIO_get(*GPIO_fd_num) == 0){
-				printf("[LOG]: %s pressed.\n",my_gpio);
+				printf("[LOG] %s pressed.\n",my_gpio);
 				get_samples();
 			}
 			usleep(300000);
@@ -747,7 +747,7 @@ void *GPIO_handler(void *param){
 		sprintf(my_gpio,"Off button");
 		while(1){
 			if(GPIO_get(*GPIO_fd_num) == 0){
-				printf("[LOG]: %s pressed.\n",my_gpio);
+				printf("[LOG] %s pressed.\n",my_gpio);
 				turn_Bomb(TURN_BOMB_OFF);
 			}
 			usleep(300000);
@@ -759,12 +759,12 @@ void GPIO_setup(int GPIO_num){
 //Create a GPIO
 
 	char str[50];
-	printf("[LOG]: Seeting GPIO %d as a digital input pin.\n", GPIO_num);
+	printf("[LOG] Seeting GPIO %d as a digital input pin.\n", GPIO_num);
 	sprintf(str,"echo %d > /sys/class/gpio/export", GPIO_num);
 	system(str);
 	sprintf(str,"echo in > /sys/class/gpio/gpio%d/direction", GPIO_num);
 	system(str);
-	printf("[LOG]: Configured.\n");
+	printf("[LOG] Configured.\n");
 
 	if(GPIO_num == ON_BTN){
 		GPIO_open(ON_GPIO_fd,GPIO_num);
@@ -780,12 +780,12 @@ void GPIO_free(int GPIO_num){
 	sprintf(str,"%d",GPIO_num);
 	fd = open("/sys/class/gpio/unexport", O_WRONLY);
 	if(fd == -1){
-		printf("[ERROR]: Could not release the GPIO %d\n", GPIO_num);
+		printf("[ERROR] Could not release the GPIO %d\n", GPIO_num);
 	}
 	else{
 		write(fd, str, 2);
 		close(fd);
-		printf("[LOG]: GPIO %d released.\n", GPIO_num);
+		printf("[LOG] GPIO %d released.\n", GPIO_num);
 	}
 }
 
