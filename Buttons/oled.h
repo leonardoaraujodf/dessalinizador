@@ -30,6 +30,11 @@
 #define TURN_BOMB_ON 0x56
 #define TURN_BOMB_OFF 0x57
 
+//For the low LOW VALVE
+#define LOW_VALVE_ON 0x5C
+#define LOW_VALVE_OFF 0x5D
+#define TIME_FOR_LOW_VALVE_ON_IN_SECONDS 3
+
 //UART file for the GPS module
 #define TTY "/dev/ttyS0"
 
@@ -149,5 +154,6 @@ int GPIO_get(int GPIO_fd_num);
 void get_samples(void);
 void verify_LevelSensor(void);
 void get_MSPsamples(struct analog *sensors, unsigned int start_comm);
+void throw_SamplesWaterOff(void);
 
 #endif

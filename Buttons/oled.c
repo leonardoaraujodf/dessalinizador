@@ -857,6 +857,8 @@ void get_samples(void){
 	create_new_sample_file(Turbidity_value, PH_value, Temp, TDS_value, coordinates[X], coordinates[Y]);
 	puts("[LOG] New sample created! Notifying Rasp API.");
 	system("curl localhost:8000/new_sample");
+  void throw_SamplesWaterOff();
+
 }
 
 void verify_LevelSensor(void){
@@ -873,13 +875,13 @@ void verify_LevelSensor(void){
       //printf("Data Received: %d\n\n",data_received);
       if(data_received == LEVEL_SENSOR_OFF){
         printf("[LOG] Waiting water to be in the level...\n");
+        sleep(1);
       }
       else if(data_received == LEVEL_SENSOR_ON){
         printf("[LOG] Water is in the level. Taking samples...\n");
       }
     }
     CloseTransmission();
-    sleep(1);
   }
 }
 
@@ -912,5 +914,41 @@ void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
   }
 
   CloseTransmission();
+}
 
+void throw_SamplesWaterOff(void){
+  unsigned char value = LOW_VALVE_ON, data_received;
+  OpenTransmission(MSP430_ADDRESS);
+  if(write(i2c_fd,&value,1) < 0){
+    printf("[ERROR] Error trying to write in i2c_fd.\n");
+  }
+  if(read(i2c_fd,&data_received,1) < 0){
+    printf("[ERROR] Error trying to read in i2c_fd.\n");
+  }
+  else{
+    //printf("Data Received: %d\n\n",data_received);
+    if(data_received == LOW_VALVE_ON){
+      printf("[LOG] Water is being thrown off...\n");
+    }
+  }
+  CloseTransmission();
+  sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
+
+  //Now that water is out of the samples tank, we can turn off
+  //the low valve
+  value = LOW_VALVE_OFF;
+  OpenTransmission(MSP430_ADDRESS);
+  if(write(i2c_fd,&value,1) < 0){
+    printf("[ERROR] Error trying to write in i2c_fd.\n");
+  }
+  if(read(i2c_fd,&data_received,1) < 0){
+    printf("[ERROR] Error trying to read in i2c_fd.\n");
+  }
+  else{
+    //printf("Data Received: %d\n\n",data_received);
+    if(data_received == LOW_VALVE_OFF){
+      printf("[LOG] Low valve turned off...\n");
+    }
+  }
+  CloseTransmission();
 }
