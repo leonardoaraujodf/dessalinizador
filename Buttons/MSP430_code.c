@@ -246,11 +246,11 @@ void treat_DataReceived(void){
 			Transmit(LEVEL_SENSOR_OFF,1);
 			UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 		}
-		else{
-			while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
-			Transmit(LEVEL_SENSOR_ON,1);
+		else if (level_sensor == 1){
 			level_sensor = 0; //RPI was advised about the level sensor, now turn the
 			//variable off for another sample in the future.
+			while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+			Transmit(LEVEL_SENSOR_ON,1);
 			UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 		}
 	}
