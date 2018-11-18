@@ -308,12 +308,12 @@ interrupt(PORT1_VECTOR) Port_1(void){
   if((P1IN & LEVEL_SENSOR) == 0){
 		level_sensor = 1; //level sensor variable is 1, it means that the samples
 //could be taken, and RPI should be advised.
-		P1IFG &= ~LEVEL_SENSOR;
 	}
 	else if((P1IN & FLOW_SENSOR) == 0){
 		pulseCount++;
-		P1IFG &= ~FLOW_SENSOR;
 	}
+	P1IFG &= ~LEVEL_SENSOR;
+	P1IFG &= ~FLOW_SENSOR;
 }
 
 interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
@@ -332,11 +332,11 @@ interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
 		//    P1OUT ^= LED;
 		turn_Pump(TURN_PUMP_OFF);
 		//Initializing again the flow sensor;
-		/*Q[0] = 0.0;
+		Q[0] = 0.0;
 		Q[1] = 0.0;
 		Vol[0] = 0.0;
 		Vol[1] = 0.0;
-		Volume = 0.0;*/
+		Volume = 0.0;
 	}
 	TA0CTL &= ~TAIFG;
 }
