@@ -21,14 +21,14 @@
 #define SCL BIT6
 #define SDA BIT7
 
-
+//When this byte is received by the MSP from the RPI, it means that
+//a sampling needs to be taken.
 #define START_SAMPLING 0x55
 
-#define PH_SENSOR_DATA 0x01
-#define TURB_SENSOR_DATA 0x02
-#define TDS_SENSOR_DATA 0x03
-#define BAT_LEVEL_DATA 0x04
+//Definitions for the level sensor
 #define LEVEL_SENSOR BIT4
+
+//Definitions for the flow sensor
 #define FLOW_SENSOR BIT5
 
 //Definitions for the water pump that goes with the desalinator
@@ -60,18 +60,21 @@
 #define LEVEL_SENSOR_OFF  0x5F
 #define LEVEL_SENSOR_ON 0x60
 
-
 unsigned int sensors[4];
-unsigned int ph_sensor;
-unsigned int turb_sensor;
-unsigned int tds_sensor;
-unsigned int bat_level;
 
 //This variable is used to describe if the level sensor detected the water level
 //If this variable is zero, it says that the water level is not good enough
 //Otherwise, it will say that the water level is OK to take samples.
 
 volatile unsigned int level_sensor = 0;
+
+//Variables for the flow sensor
+
+int pulseCount = 0;
+float Q[2] = {0}; //Flux in L/h
+float Vol[2] = {0}; //Volume in L
+float Volume = 0;
+
 
 void init_I2C(void);
 void Transmit(unsigned int rdata,unsigned int length);
@@ -86,6 +89,8 @@ void init_LowValve(void);
 void turn_LowValve(unsigned char value);
 void setupLevelSensor(void);
 void treat_DataReceived(void);
+void setup_FlowSensorTimer(void);
+void Setup_FlowSensor(void);
 
 int main(void)
 {
@@ -99,6 +104,8 @@ int main(void)
 	init_AD();
 	init_I2C();
 	setupLevelSensor();
+	Setup_FlowSensor();
+	setup_FlowSensorTimer();
 	_BIS_SR(LPM0_bits + GIE);
 
 	return 0;
@@ -272,6 +279,26 @@ void treat_DataReceived(void){
 	}
 }
 
+void setup_FlowSensorTimer(void){
+    //Timer Setup
+        TA0CCR0 = 62500-1; //fs = 10 Hz or Ts = 1 s
+        TA0CTL = TASSEL_2 + ID_3 + MC_3 + TAIE;
+        TA0CTL &= ~TAIFG;
+        //TASSEL_2 - Timer A Clock Source: Selects the SMCLK which runs at 1 MHz
+        //MC_1 - Mode Control: Up Mode
+        // ID_1 - Input Divider: internal 2x divider for the supplied clock
+        // TAIE - Timer A Interrupt Enabled
+}
+
+void Setup_FlowSensor(void){
+    P1DIR &= ~FLOW_SENSOR; //Flow Sensor as Input
+    P1IES |= FLOW_SENSOR; //Interrupt in a transition from HIGH to LOW
+    P1IE |= FLOW_SENSOR; //Interrupt Enabled for the flow sensor
+    P1IFG &= ~FLOW_SENSOR; //Interrup flag cleared
+    P1OUT &= ~LED;
+    P1DIR |= LED;
+}
+
 interrupt(USCIAB0TX_VECTOR) USCIAB0TX_ISR(void){
   if(IFG2 & UCB0RXIFG){
     treat_DataReceived();
@@ -284,6 +311,28 @@ interrupt(PORT1_VECTOR) Port_1(void){
   if((P1IN & LEVEL_SENSOR) == 0){
 		level_sensor = 1; //level sensor variable is 1, it means that the samples
 //could be taken, and RPI should be advised.
+		P1IFG &= ~LEVEL_SENSOR;
 	}
-	P1IFG &= ~LEVEL_SENSOR;
+	if((P1IN & FLOW_SENSOR) == 0){
+		pulseCount++;
+		P1IFG &= ~FLOW_SENSOR;
+	}
+}
+
+interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
+	//Q = 7.2727*(pulseCount - 16) + 120;  L/h
+	//Q[1] = 0.00202*(pulseCount - 16) + 0.033333; //L/s
+	Q[1] = 0.0031*pulseCount;
+	Vol[1] = Vol[0] + 0.5*(Q[1] + Q[0]);
+	Volume = Vol[1];
+
+	//update variables
+	Q[0] = Q[1];
+	Vol[0] = Vol[1];
+	pulseCount = 0;
+	TA0CTL &= ~TAIFG;
+	if(Volume > 0.1){
+		//    P1OUT ^= LED;
+		turn_Pump(TURN_PUMP_OFF);
+	}
 }
