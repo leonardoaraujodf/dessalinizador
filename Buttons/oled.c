@@ -508,6 +508,10 @@ float get_Temp(void){
 	fp = open(TEMP_PATH, O_RDONLY);
 	if(fp==-1){
 		printf("[ERROR] Error opening temperature sensor file.\n");
+    GPIO_close(ON_GPIO_fd);
+  	GPIO_close(OFF_GPIO_fd);
+  	GPIO_free(ON_BTN);
+  	GPIO_free(OFF_BTN);
 		exit(1);
 	}
 	while(read(fp, &c, 1) != 0){
