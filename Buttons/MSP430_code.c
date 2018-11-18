@@ -236,6 +236,12 @@ void treat_DataReceived(void){
 		level_sensor = 0; //This is because the level sensor has to compute
 		//a transition only when the on button in the rpi is pressed.
 
+		Q[0] = 0.0;
+		Q[1] = 0.0;
+		Vol[0] = 0.0;
+		Vol[1] = 0.0;
+		Volume = 0.0;
+		
 		turn_TopValve(TOP_VALVE_ON);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 		turn_Pump(TURN_PUMP_ON);
