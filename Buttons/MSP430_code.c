@@ -73,7 +73,7 @@ volatile unsigned int level_sensor = 0;
 int pulseCount = 0;
 float Q[2] = {0}; //Flux in L/h
 float Vol[2] = {0}; //Volume in L
-float Volume = 0;
+float Volume = 0.0;
 
 
 void init_I2C(void);
@@ -317,7 +317,7 @@ interrupt(PORT1_VECTOR) Port_1(void){
 //could be taken, and RPI should be advised.
 		P1IFG &= ~LEVEL_SENSOR;
 	}
-	if((P1IN & FLOW_SENSOR) == 0){
+	else if((P1IN & FLOW_SENSOR) == 0){
 		pulseCount++;
 		P1IFG &= ~FLOW_SENSOR;
 	}
