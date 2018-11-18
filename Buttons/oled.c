@@ -857,8 +857,7 @@ void get_samples(void){
 	create_new_sample_file(Turbidity_value, PH_value, Temp, TDS_value, coordinates[X], coordinates[Y]);
 	puts("[LOG] New sample created! Notifying Rasp API.");
 	system("curl localhost:8000/new_sample");
-  void throw_SamplesWaterOff();
-
+  throw_SamplesWaterOff();
 }
 
 void verify_LevelSensor(void){
