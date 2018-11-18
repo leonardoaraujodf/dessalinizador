@@ -281,6 +281,5 @@ interrupt(PORT1_VECTOR) Port_1(void){
     turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 		level_sensor = 1; //level sensor variable is 1, it means that the samples
 //could be taken, and RPI should be advised.
-	}
-  P1IFG &= ~LEVEL_SENSOR;
+	}  P1IFG &= ~LEVEL_SENSOR;
 }
