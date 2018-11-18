@@ -333,7 +333,7 @@ interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
 	Vol[0] = Vol[1];
 	pulseCount = 0;
 
-	if(Volume > 2.00){
+	if(Volume > 11.00){
 		//    P1OUT ^= LED;
 		turn_Pump(TURN_PUMP_OFF);
 		//Initializing again the flow sensor;
