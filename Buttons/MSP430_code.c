@@ -329,7 +329,7 @@ interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
 	Vol[0] = Vol[1];
 	pulseCount = 0;
 	TA0CTL &= ~TAIFG;
-	if(Volume > 0.1){
+	if(Volume > 1.0){
 		//    P1OUT ^= LED;
 		turn_Pump(TURN_PUMP_OFF);
 	}
