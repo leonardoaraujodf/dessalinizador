@@ -236,14 +236,6 @@ void treat_DataReceived(void){
 		level_sensor = 0; //This is because the level sensor has to compute
 		//a transition only when the on button in the rpi is pressed.
 
-		//Initializing again the flow sensor;
-		Q[0] = 0;
-		Q[1] = 0;
-		Vol[0] = 0;
-		Vol[1] = 0;
-		Volume = 0.0;
-		pulseCount = 0;
-
 		turn_TopValve(TOP_VALVE_ON);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 		turn_Pump(TURN_PUMP_ON);
@@ -336,9 +328,16 @@ interrupt(TIMER0_A1_VECTOR) TIMER0_TA0_ISR(void){
 	Q[0] = Q[1];
 	Vol[0] = Vol[1];
 	pulseCount = 0;
-	TA0CTL &= ~TAIFG;
+
 	if(Volume > 1.0){
 		//    P1OUT ^= LED;
 		turn_Pump(TURN_PUMP_OFF);
+		//Initializing again the flow sensor;
+		Q[0] = 0.0;
+		Q[1] = 0.0;
+		Vol[0] = 0.0;
+		Vol[1] = 0.0;
+		Volume = 0.0;
 	}
+	TA0CTL &= ~TAIFG;
 }
