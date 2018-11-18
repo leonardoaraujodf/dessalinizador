@@ -235,9 +235,11 @@ void treat_DataReceived(void){
 	else if(UCB0RXBUF == TURN_PUMP_ON){
 		level_sensor = 0; //This is because the level sensor has to compute
 		//a transition only when the on button in the rpi is pressed.
+		Volume = 0;
+		pulseCount = 0;
+
 		turn_TopValve(TOP_VALVE_ON);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
-
 		turn_Pump(TURN_PUMP_ON);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(TURN_PUMP_ON,1);
