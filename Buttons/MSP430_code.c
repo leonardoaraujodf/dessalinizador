@@ -290,19 +290,19 @@ void treat_DataReceived(void){
 		Transmit(TOP_VALVE_OPEN,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
-	else if(UCB0RXBUF = TOP_VALVE_CLOSE){
+	else if(UCB0RXBUF == TOP_VALVE_CLOSE){
 		turn_TopValve(TOP_VALVE_CLOSE);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(TOP_VALVE_CLOSE,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
-	else if(UCB0RXBUF = SAMPLES_MOTOR_ON){
+	else if(UCB0RXBUF == SAMPLES_MOTOR_ON){
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(SAMPLES_MOTOR_ON,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
-	else if(UCB0RXBUF = SAMPLES_MOTOR_OFF){
+	else if(UCB0RXBUF == SAMPLES_MOTOR_OFF){
 		turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(SAMPLES_MOTOR_OFF,1);
