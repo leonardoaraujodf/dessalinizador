@@ -909,8 +909,8 @@ void throw_SamplesWaterOff(void){
     sleep(1);
     turn_Component(TOP_VALVE_SLEEP);
     sleep(1);
-    turn_Component(LOW_VALVE_OPEN);
-    sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
+    //turn_Component(LOW_VALVE_OPEN);
+    //sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
     turn_Component(LOW_VALVE_SLEEP);
 }
 
