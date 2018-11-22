@@ -280,7 +280,7 @@ void treat_DataReceived(void){
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
 	else if(UCB0RXBUF == LOW_VALVE_SLEEP){
-		turn_TopValve(LOW_VALVE_SLEEP);
+		turn_LowValve(LOW_VALVE_SLEEP);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(LOW_VALVE_SLEEP,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
