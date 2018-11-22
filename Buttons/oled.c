@@ -733,6 +733,7 @@ void *GPIO_handler(void *param){
 		while(1){
 			if(GPIO_get(*GPIO_fd_num) == 0){
 				printf("[LOG] %s pressed.\n",my_gpio);
+        sleep(1);
 				turn_Component(TURN_BOMB_OFF);
 			}
 			usleep(300000);
