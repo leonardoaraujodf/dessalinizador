@@ -30,10 +30,22 @@
 #define TURN_BOMB_ON 0x56
 #define TURN_BOMB_OFF 0x57
 
-//For the low LOW VALVE
-#define LOW_VALVE_ON 0x5C
-#define LOW_VALVE_OFF 0x5D
-#define TIME_FOR_LOW_VALVE_ON_IN_SECONDS 3
+//For the LOW VALVE
+#define LOW_VALVE_OPEN 0x5C
+#define LOW_VALVE_CLOSE 0x5D
+#define LOW_VALVE_SLEEP 0x62
+#define TIME_FOR_LOW_VALVE_ON_IN_SECONDS 5
+
+//For the UP VALVE
+
+#define TOP_VALVE_OPEN 0x5A
+#define TOP_VALVE_CLOSE 0x5B
+#define TOP_VALVE_SLEEP 0x61
+
+//For the Samples Motor
+
+#define SAMPLES_MOTOR_ON 0x58
+#define SAMPLES_MOTOR_OFF 0x59
 
 //UART file for the GPS module
 #define TTY "/dev/ttyS0"
@@ -136,7 +148,7 @@ float get_PH(int *values);
 int compare (const void * a, const void * b);
 float get_median(int *values);
 int get_localization(char *gps_data);
-void turn_Bomb(unsigned char value);
+void turn_Component(unsigned char value);
 void split_by(char *token, char *string, char array[MAX_NUMBER_OF_FIELDS][MAX_STRING_LENGTH]);
 double convert_dms_cordinate_to_decimal(double dms_coordinate);
 int compute_direction(char *raw_direction);

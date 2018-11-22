@@ -43,16 +43,17 @@
 
 //Definitions for the top valve in the samples reservoir
 #define TOP_VALVE BIT2
-#define TOP_VALVE_ON 0x5A
-#define TOP_VALVE_OFF 0x5B
-
+#define TOP_VALVE_OPEN 0x5A
+#define TOP_VALVE_CLOSE 0x5B
+#define TOP_VALVE_SLEEP 0x61
 //Definitions for the low valve in the samples reservoir. The RPI will also
 //send this byte to say that the
 //samples were taken and the water can be thrown off.
 
 #define LOW_VALVE BIT3
-#define LOW_VALVE_ON 0x5C
-#define LOW_VALVE_OFF 0x5D
+#define LOW_VALVE_OPEN 0x5C
+#define LOW_VALVE_CLOSE 0x5D
+#define LOW_VALVE_SLEEP 0x62
 
 //Communication to say if the level sensor detects the water level
 //that can make the sensors work correctly
@@ -177,31 +178,37 @@ void turn_SamplesMotor(unsigned char value){
 }
 
 void init_TopValve(void){
-  P2OUT |= TOP_VALVE; //when the valve is 1, it won't let water pass
+  P2OUT &= ~TOP_VALVE;
   P2DIR |= TOP_VALVE;
 }
 
 void turn_TopValve(unsigned char value){
-  if(value == TOP_VALVE_ON){
+  if(value == TOP_VALVE_OPEN){
 		P2OUT &= ~TOP_VALVE; //top valve is on
   }
-  else{
+  else if(value == TOP_VALVE_CLOSE){
     P2OUT |= TOP_VALVE; //top valve is off
   }
+	else if(value == TOP_VALVE_SLEEP){
+		P2OUT &= ~TOP_VALVE;
+	}
 }
 
 void init_LowValve(){
-  P2OUT |= LOW_VALVE; //low valve is initialized in off
+  P2OUT &= ~LOW_VALVE; //low valve is initialized in off
   P2DIR |= LOW_VALVE;
 }
 
 void turn_LowValve(unsigned char value){
-  if(value == LOW_VALVE_ON){
+  if(value == LOW_VALVE_OPEN){
 		P2OUT &= ~LOW_VALVE; //low valve is on
   }
-  else{
+  else if(value == LOW_VALVE_CLOSE){
     P2OUT |= LOW_VALVE; //low valve is off
   }
+	else if(value == LOW_VALVE_SLEEP){
+		P2OUT &= ~LOW_VALVE;
+	}
 }
 
 void setupLevelSensor(void){
@@ -235,7 +242,8 @@ void treat_DataReceived(void){
 	else if(UCB0RXBUF == TURN_PUMP_ON){
 		level_sensor = 0; //This is because the level sensor has to compute
 		//a transition only when the on button in the rpi is pressed.
-		turn_TopValve(TOP_VALVE_ON);
+		turn_TopValve(TOP_VALVE_OPEN);
+		turn_LowValve(LOW_VALVE_CLOSE);
 		turn_SamplesMotor(SAMPLES_MOTOR_ON);
 		turn_Pump(TURN_PUMP_ON);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
@@ -257,23 +265,47 @@ void treat_DataReceived(void){
 		else if (level_sensor == 1){
 			level_sensor = 0; //RPI was advised about the level sensor, now turn the
 			//variable off for another sample in the future.
-			turn_TopValve(TOP_VALVE_OFF);
-	    turn_SamplesMotor(SAMPLES_MOTOR_OFF);
+			turn_TopValve(TOP_VALVE_CLOSE);
+			turn_SamplesMotor(SAMPLES_MOTOR_OFF);
 			while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 			Transmit(LEVEL_SENSOR_ON,1);
 			UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 		}
 	}
-	else if(UCB0RXBUF == LOW_VALVE_ON){
-		turn_LowValve(LOW_VALVE_ON);
+	else if(UCB0RXBUF == LOW_VALVE_OPEN){
+		turn_LowValve(LOW_VALVE_OPEN);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
-		Transmit(LOW_VALVE_ON,1);
+		Transmit(LOW_VALVE_OPEN,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
-	else if(UCB0RXBUF == LOW_VALVE_OFF){
-		turn_LowValve(LOW_VALVE_OFF);
+	else if(UCB0RXBUF == LOW_VALVE_CLOSE){
+		turn_LowValve(LOW_VALVE_CLOSE);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
-		Transmit(LOW_VALVE_OFF,1);
+		Transmit(LOW_VALVE_CLOSE,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
+	else if(UCB0RXBUF == TOP_VALVE_OPEN){
+		turn_TopValve(TOP_VALVE_OPEN);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(TOP_VALVE_OPEN,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
+	else if(UCB0RXBUF = TOP_VALVE_CLOSE){
+		turn_TopValve(TOP_VALVE_CLOSE);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(TOP_VALVE_CLOSE,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
+	else if(UCB0RXBUF = SAMPLES_MOTOR_ON){
+		turn_SamplesMotor(SAMPLES_MOTOR_ON);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(SAMPLES_MOTOR_ON,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
+	else if(UCB0RXBUF = SAMPLES_MOTOR_OFF){
+		turn_SamplesMotor(SAMPLES_MOTOR_OFF);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(SAMPLES_MOTOR_OFF,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
 }

@@ -452,53 +452,38 @@ void get_Battlevel(int *values){
 	qsort(values,30,sizeof(int),compare);
 	float level = get_median(values);
 
-	if(level < 865){
-		printf("[LOG] Battery level under 20 %\n");
-		//WriteDataOLED(josy,sizeof(josy));
-		WriteDataOLED(bat_20,sizeof(bat_20));
-		turn_Bomb(TURN_BOMB_OFF);
-	}
-	else if(level > 865 && level < 884){
-		printf("[LOG] Battery level: 40 %\n");
-		WriteDataOLED(bat_40,sizeof(bat_40));
-		turn_Bomb(TURN_BOMB_ON);
-	}
-	else if(level > 884 && level < 902){
-		printf("[LOG] Battery level: 60 %\n");
-		WriteDataOLED(bat_60,sizeof(bat_60));
-		turn_Bomb(TURN_BOMB_ON);
-	}
-	else if(level > 902 && level < 920){
-		printf("[LOG] Battery level: 80 %\n");
-		WriteDataOLED(bat_80,sizeof(bat_80));
-		turn_Bomb(TURN_BOMB_ON);
-	}
-	else if(level > 920){
-		printf("[LOG] Battery level: 100 %\n");
-		WriteDataOLED(bat_100,sizeof(bat_100));
-		turn_Bomb(TURN_BOMB_ON);
-	}
-}
-
-void turn_Bomb(unsigned char value){
-	unsigned char data_received;
-	OpenTransmission(MSP430_ADDRESS);
-	if(write(i2c_fd,&value,1) < 0){
-		printf("[ERROR] Error trying to write in i2c_fd.\n");
-	}
-	if(read(i2c_fd,&data_received,1) < 0){
-		printf("[ERROR] Error trying to read in i2c_fd.\n");
-	}
-	else{
-		//printf("Data Received: %d\n\n",data_received);
-		if(data_received == TURN_BOMB_ON){
-			printf("[LOG] Pump is on.\n");
-		}
-		else if(data_received == TURN_BOMB_OFF){
-			printf("[LOG] Pump is off.\n");
-		}
-	}
-	CloseTransmission();
+  if(level < 865){
+    printf("[LOG] Battery level under 20 %\n");
+    //WriteDataOLED(josy,sizeof(josy));
+    WriteDataOLED(bat_20,sizeof(bat_20));
+    turn_Component(TURN_BOMB_OFF);
+  }
+  else{
+    else if(level > 865 && level < 884){
+      printf("[LOG] Battery level: 40 %\n");
+      WriteDataOLED(bat_40,sizeof(bat_40));
+    }
+    else if(level > 884 && level < 902){
+      printf("[LOG] Battery level: 60 %\n");
+      WriteDataOLED(bat_60,sizeof(bat_60));
+    }
+    else if(level > 902 && level < 920){
+      printf("[LOG] Battery level: 80 %\n");
+      WriteDataOLED(bat_80,sizeof(bat_80));
+    }
+    else if(level > 920){
+      printf("[LOG] Battery level: 100 %\n");
+      WriteDataOLED(bat_100,sizeof(bat_100));
+    }
+    turn_Component(TURN_BOMB_ON);
+    sleep(1);
+    turn_Component(LOW_VALVE_CLOSE);
+    sleep(1);
+    turn_Component(TOP_VALVE_OPEN);
+    sleep(1);
+    turn_Component(SAMPLES_MOTOR_ON);
+    sleep(1);
+  }
 }
 
 float get_Temp(void){
@@ -692,7 +677,7 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 	char collection_date[MAX_STRING_LENGTH] = {0};
 	if (new_sample == NULL)
 	{
-		printf("[ERROR] New sample file could not be created!\n");
+		printf("ERROR: New sample file could not be created!\n");
 		exit(-1);
 	}
 	else
@@ -748,7 +733,7 @@ void *GPIO_handler(void *param){
 		while(1){
 			if(GPIO_get(*GPIO_fd_num) == 0){
 				printf("[LOG] %s pressed.\n",my_gpio);
-				turn_Bomb(TURN_BOMB_OFF);
+				turn_Component(TURN_BOMB_OFF);
 			}
 			usleep(300000);
 		}
@@ -882,6 +867,9 @@ void verify_LevelSensor(void){
     }
     CloseTransmission();
   }
+  turn_Component(SAMPLES_MOTOR_OFF);
+  sleep(1);
+  turn_Component(TOP_VALVE_SLEEP);
 }
 
 void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
@@ -916,26 +904,13 @@ void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
 }
 
 void throw_SamplesWaterOff(void){
-  unsigned char value = LOW_VALVE_ON, data_received;
-  OpenTransmission(MSP430_ADDRESS);
-  if(write(i2c_fd,&value,1) < 0){
-    printf("[ERROR] Error trying to write in i2c_fd.\n");
-  }
-  if(read(i2c_fd,&data_received,1) < 0){
-    printf("[ERROR] Error trying to read in i2c_fd.\n");
-  }
-  else{
-    //printf("Data Received: %d\n\n",data_received);
-    if(data_received == LOW_VALVE_ON){
-      printf("[LOG] Water is being thrown off...\n");
-    }
-  }
-  CloseTransmission();
-  sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
+    turn_Component(LOW_VALVE_OPEN);
+    sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
+    turn_Component(LOW_VALVE_SLEEP);
+}
 
-  //Now that water is out of the samples tank, we can turn off
-  //the low valve
-  value = LOW_VALVE_OFF;
+void turn_Component(unsigned char value){
+  unsigned char data_received;
   OpenTransmission(MSP430_ADDRESS);
   if(write(i2c_fd,&value,1) < 0){
     printf("[ERROR] Error trying to write in i2c_fd.\n");
@@ -945,8 +920,35 @@ void throw_SamplesWaterOff(void){
   }
   else{
     //printf("Data Received: %d\n\n",data_received);
-    if(data_received == LOW_VALVE_OFF){
-      printf("[LOG] Low valve turned off...\n");
+    if(data_received == TURN_BOMB_ON){
+      printf("[LOG] Pump is on.\n");
+    }
+    else if(data_received == TURN_BOMB_OFF){
+      printf("[LOG] Pump is off.\n");
+    }
+    else if(data_received == LOW_VALVE_OPEN){
+      puts("[LOG] Low valve is opened.");
+    }
+    else if(data_received == LOW_VALVE_CLOSE){
+      puts("[LOG] Low valve is closed");
+    }
+    else if(data_received == LOW_VALVE_SLEEP){
+      puts("[LOG] Low valve is sleeping");
+    }
+    else if(data_received == TOP_VALVE_OPEN){
+      puts("[LOG] Top valve is opened");
+    }
+    else if(data_received == TOP_VALVE_CLOSE){
+      puts("[LOG] Top valve is opened");
+    }
+    else if(data_received == TOP_VALVE_SLEEP){
+      puts("[LOG] Top valve is sleeping");
+    }
+    else if(data_received == SAMPLES_MOTOR_ON){
+      puts("[LOG] Samples Motor is ON");
+    }
+    else if(data_received == SAMPLES_MOTOR_OFF){
+      puts("[LOG] Samples Motor is OFF");
     }
   }
   CloseTransmission();
