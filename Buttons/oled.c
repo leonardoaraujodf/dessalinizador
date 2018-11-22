@@ -459,7 +459,7 @@ void get_Battlevel(int *values){
     turn_Component(TURN_BOMB_OFF);
   }
   else{
-    else if(level > 865 && level < 884){
+    if(level > 865 && level < 884){
       printf("[LOG] Battery level: 40 %\n");
       WriteDataOLED(bat_40,sizeof(bat_40));
     }
