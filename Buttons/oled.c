@@ -943,7 +943,7 @@ void turn_Component(unsigned char value){
       puts("[LOG] Top valve is opened.");
     }
     else if(data_received == TOP_VALVE_CLOSE){
-      puts("[LOG] Top valve is opened.");
+      puts("[LOG] Top valve is closed.");
     }
     else if(data_received == TOP_VALVE_SLEEP){
       puts("[LOG] Top valve is sleeping.");
