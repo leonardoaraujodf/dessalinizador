@@ -870,7 +870,7 @@ void verify_LevelSensor(void){
   }
   turn_Component(SAMPLES_MOTOR_OFF);
   sleep(1);
-  turn_Component(TOP_VALVE_SLEEP);
+  turn_Component(TOP_VALVE_CLOSE);
 }
 
 void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
@@ -905,6 +905,9 @@ void get_MSPsamples(struct analog *sensors, unsigned int start_comm){
 }
 
 void throw_SamplesWaterOff(void){
+    sleep(1);
+    turn_Component(TOP_VALVE_SLEEP);
+    sleep(1);
     turn_Component(LOW_VALVE_OPEN);
     sleep(TIME_FOR_LOW_VALVE_ON_IN_SECONDS);
     turn_Component(LOW_VALVE_SLEEP);
@@ -931,25 +934,25 @@ void turn_Component(unsigned char value){
       puts("[LOG] Low valve is opened.");
     }
     else if(data_received == LOW_VALVE_CLOSE){
-      puts("[LOG] Low valve is closed");
+      puts("[LOG] Low valve is closed.");
     }
     else if(data_received == LOW_VALVE_SLEEP){
-      puts("[LOG] Low valve is sleeping");
+      puts("[LOG] Low valve is sleeping.");
     }
     else if(data_received == TOP_VALVE_OPEN){
-      puts("[LOG] Top valve is opened");
+      puts("[LOG] Top valve is opened.");
     }
     else if(data_received == TOP_VALVE_CLOSE){
-      puts("[LOG] Top valve is opened");
+      puts("[LOG] Top valve is opened.");
     }
     else if(data_received == TOP_VALVE_SLEEP){
-      puts("[LOG] Top valve is sleeping");
+      puts("[LOG] Top valve is sleeping.");
     }
     else if(data_received == SAMPLES_MOTOR_ON){
-      puts("[LOG] Samples Motor is ON");
+      puts("[LOG] Samples Motor is ON.");
     }
     else if(data_received == SAMPLES_MOTOR_OFF){
-      puts("[LOG] Samples Motor is OFF");
+      puts("[LOG] Samples Motor is OFF.");
     }
   }
   CloseTransmission();
