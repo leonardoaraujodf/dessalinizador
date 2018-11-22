@@ -475,14 +475,15 @@ void get_Battlevel(int *values){
       printf("[LOG] Battery level: 100 %\n");
       WriteDataOLED(bat_100,sizeof(bat_100));
     }
+    sleep(1);
     turn_Component(TURN_BOMB_ON);
     sleep(1);
     turn_Component(LOW_VALVE_CLOSE);
     sleep(1);
     turn_Component(TOP_VALVE_OPEN);
-    sleep(1);
+    sleep(2);
     turn_Component(SAMPLES_MOTOR_ON);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -869,7 +870,7 @@ void verify_LevelSensor(void){
     CloseTransmission();
   }
   turn_Component(SAMPLES_MOTOR_OFF);
-  sleep(1);
+  sleep(2);
   turn_Component(TOP_VALVE_CLOSE);
 }
 
