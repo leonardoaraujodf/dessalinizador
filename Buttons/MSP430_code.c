@@ -284,6 +284,12 @@ void treat_DataReceived(void){
 		Transmit(LOW_VALVE_CLOSE,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
+	else if(UCB0RXBUF == LOW_VALVE_SLEEP){
+		turn_TopValve(TOP_VALVE_SLEEP);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(LOW_VALVE_SLEEP,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
 	else if(UCB0RXBUF == TOP_VALVE_OPEN){
 		turn_TopValve(TOP_VALVE_OPEN);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
@@ -294,6 +300,12 @@ void treat_DataReceived(void){
 		turn_TopValve(TOP_VALVE_CLOSE);
 		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
 		Transmit(TOP_VALVE_CLOSE,1);
+		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
+	}
+	else if(UCB0RXBUF == TOP_VALVE_SLEEP){
+		turn_TopValve(TOP_VALVE_SLEEP);
+		while( (UCB0STAT & UCSTTIFG)==0); // wait master for the start condition
+		Transmit(TOP_VALVE_SLEEP,1);
 		UCB0STAT &= ~(UCSTPIFG | UCSTTIFG);
 	}
 	else if(UCB0RXBUF == SAMPLES_MOTOR_ON){
