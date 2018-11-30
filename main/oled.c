@@ -704,8 +704,9 @@ void create_new_sample_file(float turbidity, float ph, float temperature, float 
 	fprintf(new_sample, "temperature: %.2f\n", temperature);
 	fprintf(new_sample, "tds: %.2f\n", tds);
 	fprintf(new_sample, "collection_date: %s\n", collection_date);
-	fprintf(new_sample, "latitude: %s\n", x_coordinate);
-	fprintf(new_sample, "longitude: %s\n", y_coordinate);
-
+	// fprintf(new_sample, "latitude: %s\n", x_coordinate);
+	// fprintf(new_sample, "longitude: %s\n", y_coordinate);
+	fprintf(new_sample, "latitude: -15.9888369\n");
+	fprintf(new_sample, "longitude: -48.04444414\n");
 	fclose(new_sample);
 }
