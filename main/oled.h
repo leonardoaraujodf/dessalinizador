@@ -81,7 +81,7 @@ int i2c_fd;
 #define Y 1
 
 // Sample file path
-#define NEW_SAMPLE_PATH "sample.txt"
+#define NEW_SAMPLE_PATH "../../rasp-api/data/new_samples/sample.txt"
 
 struct analog
 {
