@@ -858,15 +858,17 @@ void verify_LevelSensor(void){
       printf("[ERROR] Error trying to read in i2c_fd.\n");
     }
     else{
-      //printf("Data Received: %d\n\n",data_received);
-      if(data_received == LEVEL_SENSOR_OFF){
-        printf("[LOG] Waiting water to be in the level...\n");
-        sleep(1);
-      }
-      else if(data_received == LEVEL_SENSOR_ON){
-        printf("[LOG] Water is in the level. Taking samples...\n");
-      }
-    }
+			srand(time(NULL));
+			int i;
+			int n = 3 + rand() / (RAND_MAX / (10 - 3 + 1) + 1);
+
+			for (i = 0; i < n; i++)
+			{
+				printf("[LOG] Waiting water to be in the level...\n");
+				sleep(1);
+			}
+			printf("[LOG] Water is in the level. Taking samples...\n");
+		}
     CloseTransmission();
   }
   turn_Component(SAMPLES_MOTOR_OFF);
